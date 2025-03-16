@@ -1,0 +1,56 @@
+# used for local development
+services:
+
+  backend:
+    image: ${APP_NAME}-backend
+    volumes:
+      - ./:/app/node
+    working_dir: /app/node
+    command: npm run start:local
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+    ports:
+      - ${BACKEND_OUTER_PORT}:${BACKEND_INNER_PORT}
+
+  postgres:
+    container_name: ${POSTGRES_HOST}-db
+    image: postgres:latest
+    # set shared memory limit when using docker-compose
+    shm_size: 128mb
+    volumes:
+      - pg-volume:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PW}
+      - POSTGRES_DB=${POSTGRES_DB} # optional (specify default database instead of $POSTGRES_DB)
+    ports:
+      - ${POSTGRES_PORT}:${POSTGRES_PORT}
+    restart: always
+
+  minio:
+    image: minio/minio
+    # image: harbor.umbrellait.tech/uit/minio/minio:latest
+    restart: always
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio-storage:/data
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+    env_file:
+      - .env
+    # command: server --console-address ":9001" /data
+    command: server --address ":9000" --console-address ":9001" /data/
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+volumes:
+  pg-volume:
+  minio-storage:

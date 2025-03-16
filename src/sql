@@ -1,0 +1,12 @@
+select * from "image";
+
+select * from "user";
+
+-- TRUNCATE TABLE "image";
+
+-- delete from "user"
+-- where true;
+
+-- update "user"
+-- set role = 'admin'
+-- where "login" = 'admin@mail.ru'

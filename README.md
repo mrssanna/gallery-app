@@ -27,9 +27,44 @@
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
 ## Project setup
+1. Create `.env` from `.env.example`
 
+2. Build backend image
 ```bash
-$ npm install
+$ make build-backend-image
+```
+
+3. Start backend
+```bash
+$ make up
+```
+
+4. Show backend logs
+```bash
+$ make backend-logs
+```
+
+5. See Swagger [http://localhost:3001/api](http://localhost:3001/api)
+
+## Other commands
+* Restart backend (make stop and start)
+```bash
+$ make restart
+```
+
+* Stop backend
+```bash
+$ make stop
+```
+
+* Show containers
+```bash
+$ make status
+```
+
+* Connect to backend container
+```bash
+$ make backend-console
 ```
 
 ## Compile and run the project

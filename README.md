@@ -78,11 +78,10 @@ $ make backend-console
 $ npm run migration:generate
 ```
 
-Type name for new migration, than Enter
+Type the name for the new migration, than Enter
+You can find the created migration in the "/db/migrations" folder.
 
-See created migration in the /db/migrations folder
-
-* Run created migration
+* Apply created migration
 ```bash
 $ npm run migration:run
 ```

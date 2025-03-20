@@ -67,6 +67,36 @@ $ make status
 $ make backend-console
 ```
 
+## Migrations
+* Connect to backend container
+```bash
+$ make backend-console
+```
+
+* Run migration generate command
+```bash
+$ npm run migration:generate
+```
+
+Type name for new migration, than Enter
+
+See created migration in the /db/migrations folder
+
+* Run created migration
+```bash
+$ npm run migration:run
+```
+
+* Revert current migration
+```bash
+$ npm run migration:revert
+```
+
+* Disconnect from container
+```bash
+$ exit
+```
+
 ## Compile and run the project
 
 ```bash

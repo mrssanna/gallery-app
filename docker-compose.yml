@@ -6,7 +6,7 @@ services:
     volumes:
       - ./:/app/node
     working_dir: /app/node
-    command: npm run start:local
+    command: npm run start:dev
     env_file:
       - .env
     depends_on:

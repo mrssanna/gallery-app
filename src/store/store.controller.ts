@@ -20,6 +20,7 @@ import {
   ApiTags,
   ApiResponse,
   ApiConsumes,
+  ApiBearerAuth
 } from '@nestjs/swagger';
 import { SkipThrottle } from '@nestjs/throttler';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -43,6 +44,7 @@ import { IUserRequest } from '../interfaces';
 
 @SkipThrottle()
 @ApiTags('Store')
+@ApiBearerAuth()
 @Controller('store')
 export class StoreController {
   constructor(private readonly storeService: StoreService) {}

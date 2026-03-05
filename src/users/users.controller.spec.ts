@@ -1,14 +1,34 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
+import { JwtService } from '@nestjs/jwt';
 
 describe('UsersController', () => {
   let controller: UsersController;
 
+  const mockUsersService = {
+    getProfile: jest.fn(),
+    updateProfile: jest.fn(),
+    findAll: jest.fn(),
+    findOneByLogin: jest.fn(),
+    blockUser: jest.fn(),
+    remove: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [UsersController],
-      providers: [UsersService],
+      providers: [
+        {
+          provide: UsersService,
+          useValue: mockUsersService,
+        },
+        {
+          // For AuthGuard and RolesGuard
+          provide: JwtService,
+          useValue: {},
+        },
+      ],
     }).compile();
 
     controller = module.get<UsersController>(UsersController);

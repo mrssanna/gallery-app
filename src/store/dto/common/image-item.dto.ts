@@ -5,18 +5,23 @@ import {
   UpdatedAtDto,
 } from '../../../common-files/dto/date-fields.dto';
 import { ImageInfoResponseDto } from './image-info.dto';
-import { ImageFormat } from 'src/interfaces';
+import { ImageFormat } from '../../../interfaces';
+
+class ImageBase1 extends IntersectionType(IdDto, ImageInfoResponseDto) {}
+class ImageBase2 extends IntersectionType(ImageBase1, CreatedAtDto) {}
 
 export class ImageItemResponseDto extends IntersectionType(
-  IdDto,
-  ImageInfoResponseDto,
-  CreatedAtDto,
+  ImageBase2,
   UpdatedAtDto,
 ) {
   @ApiProperty({ description: 'Image url' })
   url: string;
 
-  @ApiProperty({ description: 'Image format', example: ImageFormat.PNG, examples: Object.values(ImageFormat) })
+  @ApiProperty({
+    description: 'Image format',
+    example: ImageFormat.PNG,
+    examples: Object.values(ImageFormat),
+  })
   format: string;
 
   @ApiProperty({

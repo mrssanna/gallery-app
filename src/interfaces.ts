@@ -1,3 +1,4 @@
+import { Request } from 'express';
 import { BUCKET_NAME } from './common-files/constants/constants';
 
 export enum GenderType {
@@ -12,6 +13,10 @@ export enum RoleType {
 
 export interface IUserRequest {
   sub: string;
+}
+
+export interface IRequestWithUser extends Request {
+  user: IJwtPayload;
 }
 
 export interface IJwtPayload {

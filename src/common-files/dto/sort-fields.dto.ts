@@ -1,4 +1,4 @@
-import { IsEnum } from 'class-validator';
+import { IsEnum, IsOptional } from 'class-validator';
 import { ApiPropertyOptional, IntersectionType } from '@nestjs/swagger';
 import {
   SortImagesFieldType,
@@ -13,6 +13,7 @@ export class SortImagesFieldDto {
     default: SortImagesFieldType.CREATED_AT,
   })
   @IsEnum(SortImagesFieldType)
+  @IsOptional()
   sortField: SortImagesFieldType;
 }
 
@@ -33,6 +34,7 @@ export class SortOrderDto {
     default: SortOrderType.DESC,
   })
   @IsEnum(SortOrderType)
+  @IsOptional()
   sortOrder: SortOrderType;
 }
 

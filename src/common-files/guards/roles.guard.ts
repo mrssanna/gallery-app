@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { CustomErrors } from '../constants/custom-errors';
-import { IJwtPayload, RoleType } from '../../interfaces';
+import { RoleType, IRequestWithUser } from '../../interfaces';
 import { ROLES_KEY } from '../constants/constants';
 
 @Injectable()
@@ -23,8 +23,12 @@ export class RolesGuard implements CanActivate {
       return true;
     }
 
-    const request = context.switchToHttp().getRequest();
-    const user: IJwtPayload = request?.user;
+    const request: IRequestWithUser = context.switchToHttp().getRequest();
+    const { user } = request;
+
+    if (!user) {
+      throw new ForbiddenException(CustomErrors.ACCESS_DENIED);
+    }
 
     const hasRole = requiredRoles.some((role) => user.role.includes(role));
 

@@ -3,7 +3,7 @@ import {
   Logger,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { v4 as uuid } from 'uuid';
+import { randomUUID } from 'crypto';
 import { MinioService } from './minio/minio.service';
 import { BUCKET_NAME } from '../common-files/constants/constants';
 import { BucketType } from '../interfaces';
@@ -17,7 +17,7 @@ export class FileService {
   private readonly logger = new Logger(FileService.name);
 
   private prepareMinioId = (format: string): string => {
-    const fileId = uuid() + '.' + getExtension(format);
+    const fileId = randomUUID() + '.' + getExtension(format);
     return fileId;
   };
 
@@ -38,7 +38,7 @@ export class FileService {
         bucket,
       };
     } catch (error) {
-      this.logger.error(error);
+      this.logger.error('File upload failed', error);
       throw new InternalServerErrorException(CustomErrors.FILE_UPLOAD_ERROR);
     }
   }
@@ -47,7 +47,7 @@ export class FileService {
     try {
       await this.minioService.deleteFile(bucket, path);
     } catch (error) {
-      this.logger.error(error);
+      this.logger.error('File removal failed', error);
       throw new InternalServerErrorException(CustomErrors.FILE_REMOVE_ERROR);
     }
 

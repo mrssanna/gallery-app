@@ -1,7 +1,9 @@
-import { NestFactory } from '@nestjs/core';
+import { NestFactory, HttpAdapterHost } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { Logger, ValidationPipe } from '@nestjs/common';
+import { LoggingInterceptor } from './common-files/interceptors/logging.interceptor';
+import { AllExceptionsFilter } from './common-files/filters/all-exceptions.filter';
 
 async function bootstrap() {
   const logger = new Logger('Application');
@@ -19,10 +21,18 @@ async function bootstrap() {
 
   app.enableCors();
 
+  // Global Logging Interceptor
+  app.useGlobalInterceptors(new LoggingInterceptor());
+
+  // Global Exception Filter
+  const httpAdapter = app.get(HttpAdapterHost);
+  app.useGlobalFilters(new AllExceptionsFilter(httpAdapter));
+
   // turn on validations for endpoints
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
+      whitelist: true, // Strip properties that do not have decorators
     }),
   );
 

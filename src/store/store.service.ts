@@ -1,6 +1,6 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, FindManyOptions } from 'typeorm';
+import { Repository, FindManyOptions, FindOptionsOrder } from 'typeorm';
 import { FileService } from '../file/file.service';
 import { User } from '../users/entities/user.entity';
 import { Image } from './entities/image.entity';
@@ -91,10 +91,12 @@ export class StoreService {
     const { id, pageNo, perPage, sortField, sortOrder } = dto;
     const skip = (pageNo - 1) * perPage;
 
-    const orderOptions = {};
-    orderOptions[sortField] = sortOrder;
+    const orderOptions: FindOptionsOrder<Image> = {};
+    if (sortField && sortOrder) {
+      orderOptions[sortField] = sortOrder;
+    }
 
-    const requestOptions: FindManyOptions = {
+    const requestOptions: FindManyOptions<Image> = {
       where: {
         user: { id },
       },

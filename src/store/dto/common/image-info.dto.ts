@@ -3,13 +3,21 @@ import { IsOptional, IsString } from 'class-validator';
 import { Expose } from 'class-transformer';
 
 export class ImageInfoDto {
-  @ApiPropertyOptional({ description: 'Image title', example: 'Title', default: '' })
+  @ApiPropertyOptional({
+    description: 'Image title',
+    example: 'Title',
+    default: '',
+  })
   @IsString()
   @IsOptional()
   @Expose()
   title?: string;
 
-  @ApiPropertyOptional({ description: 'Image author', example: 'Author', default: '' })
+  @ApiPropertyOptional({
+    description: 'Image author',
+    example: 'Author',
+    default: '',
+  })
   @IsString()
   @IsOptional()
   @Expose()

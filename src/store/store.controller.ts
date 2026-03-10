@@ -4,8 +4,8 @@ import {
   Get,
   Delete,
   HttpStatus,
-  Request,
   Body,
+  Query,
   UseGuards,
   UseInterceptors,
   ClassSerializerInterceptor,
@@ -20,7 +20,7 @@ import {
   ApiTags,
   ApiResponse,
   ApiConsumes,
-  ApiBearerAuth
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 import { SkipThrottle } from '@nestjs/throttler';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -39,8 +39,7 @@ import {
   MAX_FILE_SIZE_MB,
   BITES_IN_MB,
 } from '../common-files/constants/constants';
-import { getUserId } from '../common-files/helpers';
-import { IUserRequest } from '../interfaces';
+import { User } from '../common-files/decorators/user.decorator';
 
 @SkipThrottle()
 @ApiTags('Store')
@@ -66,7 +65,7 @@ export class StoreController {
   // Multer handles data posted in the multipart/form-data format, which is primarily used for uploading files via an HTTP POST request.
   // This module is fully configurable and you can adjust its behavior to your application requirements.
   uploadFile(
-    @Request() req,
+    @User('sub') userId: string,
     @Body() uploadFileDto: UploadFileDto,
     @UploadedFile(
       new ParseFilePipe({
@@ -81,9 +80,6 @@ export class StoreController {
     )
     file: Express.Multer.File,
   ) {
-    // eslint-disable-next-line
-    const userId = getUserId((req?.user as IUserRequest) || undefined); // req.user.sub;
-
     return this.storeService.uploadFile({
       ...{ id: userId },
       ...{ file },
@@ -104,12 +100,9 @@ export class StoreController {
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @Patch('update')
   updateImageInfo(
-    @Request() req,
+    @User('sub') userId: string,
     @Body() updateFileInfoDto: UpdateFileInfoDto,
   ) {
-    // eslint-disable-next-line
-    const userId = getUserId((req?.user as IUserRequest) || undefined); // req.user.sub;
-
     return this.storeService.updateFileInfo({
       ...{ userId },
       ...updateFileInfoDto,
@@ -133,9 +126,7 @@ export class StoreController {
   })
   @UseInterceptors(ClassSerializerInterceptor) // remove excluded columns from response User item
   @Get('image')
-  findAll(@Request() req, @Body() getImagesDto: GetImagesDto) {
-    // eslint-disable-next-line
-    const userId = getUserId((req?.user as IUserRequest) || undefined); // req.user.sub;
+  findAll(@User('sub') userId: string, @Query() getImagesDto: GetImagesDto) {
     return this.storeService.findAll({ ...{ id: userId }, ...getImagesDto });
   }
 
@@ -155,9 +146,7 @@ export class StoreController {
     description: 'Internal Server Error',
   })
   @Delete('image')
-  remove(@Request() req, @Body() removeFileDto: RemoveFileDto) {
-    // eslint-disable-next-line
-    const userId = getUserId((req?.user as IUserRequest) || undefined); // req.user.sub;
+  remove(@User('sub') userId: string, @Body() removeFileDto: RemoveFileDto) {
     return this.storeService.removeFile(userId, removeFileDto.id);
   }
 }

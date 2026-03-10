@@ -55,6 +55,7 @@ export class ConfigService
     };
   }
 
+  // eslint-disable-next-line
   async create(): Promise<MinioOptions> {
     return this.minioConfig();
   }

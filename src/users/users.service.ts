@@ -5,7 +5,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, FindManyOptions } from 'typeorm';
+import { Repository, FindManyOptions, FindOptionsOrder } from 'typeorm';
 import { User } from './entities/user.entity';
 import { RemoveUserResponseDto } from './dto/remove-user-response.dto';
 import { UserLoginDto } from '../common-files/dto/user-fields.dto';
@@ -75,10 +75,12 @@ export class UsersService {
     const { pageNo, perPage, role, sortField, sortOrder } = dto;
     const skip = (pageNo - 1) * perPage;
 
-    const orderOptions = {};
-    orderOptions[sortField] = sortOrder;
+    const orderOptions: FindOptionsOrder<User> = {};
+    if (sortField && sortOrder) {
+      orderOptions[sortField] = sortOrder;
+    }
 
-    const requestOptions: FindManyOptions = {
+    const requestOptions: FindManyOptions<User> = {
       where: {
         ...(role ? { role } : {}),
       },
@@ -138,10 +140,7 @@ export class UsersService {
       throw new NotFoundException(CustomErrors.USER_NOT_FOUND);
     }
 
-    console.log('================ user', user);
-
     user.isBlocked = true;
-    console.log('================ after update - user', user);
     await this.usersRepository.save(user);
 
     return {

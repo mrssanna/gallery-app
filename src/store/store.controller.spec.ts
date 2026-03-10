@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { StoreController } from './store.controller';
 import { StoreService } from './store.service';
 import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '../config/config.service';
 
 describe('StoreController', () => {
   let controller: StoreController;
@@ -25,6 +26,10 @@ describe('StoreController', () => {
           provide: JwtService,
           useValue: {},
         },
+        {
+          provide: ConfigService,
+          useValue: { jwtOptions: { jwtAccessTokenSecret: 'test' } },
+        }, // For AuthGuard
       ],
     }).compile();
 

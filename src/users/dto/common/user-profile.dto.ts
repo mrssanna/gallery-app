@@ -1,5 +1,5 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsEnum, IsOptional, IsString } from 'class-validator';
 import { Expose } from 'class-transformer';
 import { GenderType, RoleType } from '../../../interfaces';
 
@@ -11,7 +11,8 @@ export class UserGenderDto {
   })
   @Expose()
   @IsEnum(GenderType)
-  gender: string;
+  @IsOptional()
+  gender: GenderType;
 }
 
 export class UserRoleDto {
@@ -22,19 +23,25 @@ export class UserRoleDto {
   })
   @Expose()
   @IsEnum(RoleType)
-  role: string;
+  role: RoleType;
 }
 
 export class UserPersonalInfoDto {
-  @ApiProperty({ description: 'User first name', example: 'Иван' })
+  @ApiPropertyOptional({ description: 'User first name', example: 'Иван' })
   @Expose()
+  @IsString()
+  @IsOptional()
   firstName: string;
 
-  @ApiProperty({ description: 'User middle name', example: 'Иванович' })
+  @ApiPropertyOptional({ description: 'User middle name', example: 'Иванович' })
   @Expose()
+  @IsString()
+  @IsOptional()
   middleName: string;
 
-  @ApiProperty({ description: 'User last name', example: 'Иванов' })
+  @ApiPropertyOptional({ description: 'User last name', example: 'Иванов' })
   @Expose()
+  @IsString()
+  @IsOptional()
   lastName: string;
 }

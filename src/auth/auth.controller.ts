@@ -1,12 +1,10 @@
+import { Controller, Post, Body, HttpStatus, UseGuards } from '@nestjs/common';
 import {
-  Controller,
-  Post,
-  Body,
-  Request,
-  HttpStatus,
-  UseGuards,
-} from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { SkipThrottle } from '@nestjs/throttler';
 import { AuthGuard } from '../common-files/guards/auth.guard';
 import { AuthService } from './auth.service';
@@ -17,8 +15,7 @@ import { RefreshTokenResponseDto } from './dto/refresh-token-response.dto';
 import { LogoutResponseDto } from './dto/logout-response.dto';
 import { SignUpDto } from './dto/signup.dto';
 import { SignUpResponseDto } from './dto/signup-response.dto';
-import { getUserId } from '../common-files/helpers';
-import { IUserRequest } from '../interfaces';
+import { User } from '../common-files/decorators/user.decorator';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -69,6 +66,7 @@ export class AuthController {
 
   @SkipThrottle()
   @UseGuards(AuthGuard)
+  @ApiBearerAuth()
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Success',
@@ -77,9 +75,7 @@ export class AuthController {
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
   @Post('logout')
   @ApiOperation({ summary: 'Logout user' })
-  logOut(@Request() req) {
-    // eslint-disable-next-line
-    const userId = getUserId((req?.user as IUserRequest) || undefined); // req.user.sub;
+  logOut(@User('sub') userId: string) {
     return this.authService.logOut(userId);
   }
 }

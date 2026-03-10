@@ -17,6 +17,8 @@ export class UpdateFileInfoFullDto extends UpdateFileInfoDto {
   userId: string;
 
   constructor(partial: Partial<UpdateFileInfoFullDto>) {
+    // super();
+    // Object.assign(this, partial);
     super(partial);
     return plainToInstance(UpdateFileInfoFullDto, partial, {
       excludeExtraneousValues: true,

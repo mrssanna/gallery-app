@@ -5,7 +5,6 @@ import {
   Patch,
   Body,
   Param,
-  Request,
   Delete,
   HttpStatus,
   UseGuards,
@@ -13,8 +12,14 @@ import {
   ValidationPipe,
   UseInterceptors,
   ClassSerializerInterceptor, // Serialization is a process that happens before objects are returned in a network response
+  Query,
 } from '@nestjs/common';
-import { ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { SkipThrottle } from '@nestjs/throttler';
 import { UsersService } from './users.service';
 import { AuthGuard } from '../common-files/guards/auth.guard';
@@ -29,8 +34,10 @@ import { RoleType } from '../interfaces';
 import { GetAllUsersDto } from './dto/get-all-users.dto';
 import { GetAllUsersResponseDto } from './dto/get-all-users-response.dto';
 import { BlockUserResponseDto } from './dto/block-user-response.dto';
+import { User } from '../common-files/decorators/user.decorator';
 
 @SkipThrottle()
+@ApiBearerAuth()
 @Controller('users')
 // @ApiTags('Users (all)')
 export class UsersController {
@@ -51,10 +58,8 @@ export class UsersController {
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
   @UseInterceptors(ClassSerializerInterceptor) // remove excluded columns from response User item
   @Get('profile')
-  getProfile(@Request() req) {
-    // eslint-disable-next-line
-    const userId = req.user.sub || '';
-    return this.usersService.getProfile(userId as string);
+  getProfile(@User('sub') userId: string) {
+    return this.usersService.getProfile(userId);
   }
 
   @UseGuards(AuthGuard)
@@ -73,11 +78,12 @@ export class UsersController {
   @UseInterceptors(ClassSerializerInterceptor) // remove excluded columns from response User item
   @Patch('profile')
   @UsePipes(new ValidationPipe({ transform: true })) // Включаем валидацию и трансформацию DTO
-  update(@Request() req, @Body() updateProfileDto: UpdateProfileDto) {
-    // eslint-disable-next-line
-    const userId = req.user.sub;
+  update(
+    @User('sub') userId: string,
+    @Body() updateProfileDto: UpdateProfileDto,
+  ) {
     return this.usersService.updateProfile({
-      ...{ id: userId as string },
+      ...{ id: userId },
       ...updateProfileDto,
     });
   }
@@ -96,12 +102,12 @@ export class UsersController {
   @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Forbidden' })
   @UseInterceptors(ClassSerializerInterceptor) // remove excluded columns from response User item
   @Get()
-  findAll(@Request() req, @Body() getAllUsersDto: GetAllUsersDto) {
-    // eslint-disable-next-line
-    const userId = req.user.sub;
-
+  findAll(
+    @User('sub') userId: string,
+    @Query() getAllUsersDto: GetAllUsersDto,
+  ) {
     return this.usersService.findAll({
-      ...{ id: userId as string },
+      ...{ id: userId },
       ...getAllUsersDto,
     });
   }

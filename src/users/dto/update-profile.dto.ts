@@ -14,6 +14,8 @@ export class UpdateProfileWithIdDto extends IntersectionType(
   UserPersonalInfoDto,
 ) {
   constructor(partial: Partial<UpdateProfileWithIdDto>) {
+    // super();
+    // Object.assign(this, partial);
     super(partial);
     return plainToInstance(UpdateProfileWithIdDto, partial, {
       excludeExtraneousValues: true,

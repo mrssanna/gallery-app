@@ -4,6 +4,8 @@ import { UserLoginDto } from '../../common-files/dto/user-fields.dto';
 
 export class UpdateUserDto extends IntersectionType(UserLoginDto) {
   constructor(partial: Partial<UpdateUserDto>) {
+    // super();
+    // Object.assign(this, partial);
     super(partial);
     return plainToInstance(UpdateUserDto, partial, {
       excludeExtraneousValues: true,

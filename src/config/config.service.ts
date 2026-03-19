@@ -71,8 +71,3 @@ export class ConfigService
     };
   }
 }
-
-// NODE_ENV=local
-// ENV=local
-
-// CLIENT_URL=http://localhost:3000

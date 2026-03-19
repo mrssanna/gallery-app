@@ -24,11 +24,13 @@ export class UsersService {
   private readonly logger = new Logger(UsersService.name);
 
   async createUser(login: string, password: string): Promise<User | null> {
+    this.logger.debug(`Checking if user exists: ${login}`);
     const isAlreadyExist = await this.usersRepository.exists({
       where: { login },
     });
 
     if (isAlreadyExist) {
+      this.logger.warn(`Failed to create user: ${login} already exists`);
       throw new BadRequestException(CustomErrors.USER_ALREADY_EXISTS);
     }
 
@@ -38,14 +40,17 @@ export class UsersService {
     });
 
     await this.usersRepository.save(user);
+    this.logger.log(`User created in DB: ${login} (ID: ${user.id})`);
 
     return user;
   }
 
   async getProfile(userId: string): Promise<User | null> {
+    this.logger.debug(`Fetching profile for user ID: ${userId}`);
     const user = await this.usersRepository.findOneBy({ id: userId });
 
     if (!user) {
+      this.logger.warn(`Profile not found for user ID: ${userId}`);
       throw new NotFoundException(CustomErrors.USER_NOT_FOUND);
     }
 
@@ -54,12 +59,13 @@ export class UsersService {
 
   async updateProfile(_dto: UpdateProfileWithIdDto): Promise<User | null> {
     const updateProfileDto = new UpdateProfileWithIdDto(_dto);
-
     const { id } = updateProfileDto;
 
+    this.logger.debug(`Updating profile for user ID: ${id}`);
     const user = await this.usersRepository.findOneBy({ id });
 
     if (!user) {
+      this.logger.warn(`Failed to update profile: User not found (ID: ${id})`);
       throw new BadRequestException(CustomErrors.USER_IS_NOT_EXIST);
     }
 
@@ -68,12 +74,18 @@ export class UsersService {
       user[key] = updateProfileDto[key];
     });
 
-    return this.usersRepository.save(user);
+    const updatedUser = await this.usersRepository.save(user);
+    this.logger.log(`Profile updated for user ID: ${id}`);
+    return updatedUser;
   }
 
   async findAll(dto: GetAllUsersDto): Promise<GetAllUsersResponseDto> {
     const { pageNo, perPage, role, sortField, sortOrder } = dto;
     const skip = (pageNo - 1) * perPage;
+
+    this.logger.debug(
+      `Fetching all users. Page: ${pageNo}, PerPage: ${perPage}, Role: ${role}`,
+    );
 
     const orderOptions: FindOptionsOrder<User> = {};
     if (sortField && sortOrder) {
@@ -91,6 +103,8 @@ export class UsersService {
     const [users, count] =
       await this.usersRepository.findAndCount(requestOptions);
 
+    this.logger.log(`Found ${count} users matching criteria`);
+
     return {
       node: users,
       pageInfo: {
@@ -104,9 +118,11 @@ export class UsersService {
 
   async findOneByLogin(userLoginDto: UserLoginDto): Promise<User | null> {
     const { login } = userLoginDto;
+    this.logger.debug(`Fetching user by login: ${login}`);
     const user = await this.usersRepository.findOneBy({ login });
 
     if (!user) {
+      this.logger.warn(`User not found by login: ${login}`);
       throw new NotFoundException(CustomErrors.USER_NOT_FOUND);
     }
 
@@ -117,11 +133,13 @@ export class UsersService {
     userLoginDto: UserLoginDto,
   ): Promise<RemoveUserResponseDto | null> {
     const { login } = userLoginDto;
+    this.logger.log(`Attempting to remove user: ${login}`);
 
     try {
       await this.usersRepository.delete({ login });
+      this.logger.log(`User removed successfully: ${login}`);
     } catch (err) {
-      this.logger.error(err);
+      this.logger.error(`Failed to remove user: ${login}`, err);
       throw new BadRequestException(CustomErrors.DELETE_USER_ERROR);
     }
 
@@ -134,14 +152,17 @@ export class UsersService {
     userLoginDto: UserLoginDto,
   ): Promise<RemoveUserResponseDto | null> {
     const { login } = userLoginDto;
+    this.logger.log(`Attempting to block user: ${login}`);
     const user = await this.usersRepository.findOneBy({ login });
 
     if (!user) {
+      this.logger.warn(`Failed to block user: User not found (${login})`);
       throw new NotFoundException(CustomErrors.USER_NOT_FOUND);
     }
 
     user.isBlocked = true;
     await this.usersRepository.save(user);
+    this.logger.log(`User blocked successfully: ${login}`);
 
     return {
       success: true,
@@ -164,7 +185,6 @@ export class UsersService {
     }
 
     user.refreshToken = refreshToken;
-
     return this.usersRepository.save(user);
   }
 
@@ -186,7 +206,6 @@ export class UsersService {
     }
 
     user.refreshToken = '';
-
     return this.usersRepository.save(user);
   }
 }

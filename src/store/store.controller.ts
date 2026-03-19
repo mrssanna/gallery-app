@@ -38,6 +38,7 @@ import { CustomErrors } from '../common-files/constants/custom-errors';
 import {
   MAX_FILE_SIZE_MB,
   BITES_IN_MB,
+  ALLOWED_MIMETYPE_REGEXP,
 } from '../common-files/constants/constants';
 import { User } from '../common-files/decorators/user.decorator';
 
@@ -74,7 +75,7 @@ export class StoreController {
             maxSize: MAX_FILE_SIZE_MB * BITES_IN_MB,
             message: CustomErrors.FILE_SIZE_LIMIT,
           }),
-          new FileTypeValidator({ fileType: 'image/png' }), // TODO: add other valid formats
+          new FileTypeValidator({ fileType: ALLOWED_MIMETYPE_REGEXP }),
         ],
       }),
     )

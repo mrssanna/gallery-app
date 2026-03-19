@@ -39,12 +39,10 @@ import { User } from '../common-files/decorators/user.decorator';
 @SkipThrottle()
 @ApiBearerAuth()
 @Controller('users')
-// @ApiTags('Users (all)')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @UseGuards(AuthGuard)
-  // @ApiTags('Profile')
   @ApiOperation({
     summary: 'Get profile',
     tags: ['Profile'],
@@ -63,7 +61,6 @@ export class UsersController {
   }
 
   @UseGuards(AuthGuard)
-  // @ApiTags('Profile')
   @ApiOperation({
     summary: 'Update profile',
     tags: ['Profile'],
@@ -91,7 +88,6 @@ export class UsersController {
   // ======================================== Admin endpoints =====================================
   @Roles(RoleType.ADMIN) // set metadata
   @UseGuards(AuthGuard, RolesGuard) // use guards
-  // @ApiTags('Users (only for development and testing)')
   @ApiOperation({ summary: 'Get all users', tags: ['Admin'] })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -114,7 +110,6 @@ export class UsersController {
 
   @Roles(RoleType.ADMIN) // set metadata
   @UseGuards(AuthGuard, RolesGuard) // use guards
-  // @ApiTags('Users (only for development and testing)')
   @ApiOperation({
     summary: 'Get user by login',
     tags: ['Admin'],
@@ -159,7 +154,6 @@ export class UsersController {
 
   @Roles(RoleType.ADMIN) // set metadata
   @UseGuards(AuthGuard, RolesGuard) // use guards
-  // @ApiTags('Users (only for development and testing)')
   @ApiOperation({
     summary: 'Remove user by login',
     tags: ['Admin'],

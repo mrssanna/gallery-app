@@ -28,10 +28,16 @@ export class FileService {
       const minioId = this.prepareMinioId(file.mimetype);
       const bucket = BUCKET_NAME;
 
+      this.logger.debug(
+        `Uploading file to MinIO. Bucket: ${bucket}, Path: ${minioId}`,
+      );
+
       await this.minioService.uploadBuffer(bucket, minioId, {
         buffer: file.buffer,
         mimetype: file.mimetype,
       });
+
+      this.logger.log(`File successfully uploaded to MinIO. Path: ${minioId}`);
 
       return {
         path: minioId,
@@ -45,7 +51,11 @@ export class FileService {
 
   async removeFile(bucket: string, path: string): Promise<boolean> {
     try {
+      this.logger.debug(
+        `Removing file from MinIO. Bucket: ${bucket}, Path: ${path}`,
+      );
       await this.minioService.deleteFile(bucket, path);
+      this.logger.log(`File successfully removed from MinIO. Path: ${path}`);
     } catch (error) {
       this.logger.error('File removal failed', error);
       throw new InternalServerErrorException(CustomErrors.FILE_REMOVE_ERROR);

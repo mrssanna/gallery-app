@@ -2,6 +2,7 @@ import {
   Injectable,
   BadRequestException,
   UnauthorizedException,
+  Logger,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '../config/config.service';
@@ -20,6 +21,8 @@ import { IJwtPayload, RoleType } from '../interfaces';
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
@@ -29,6 +32,8 @@ export class AuthService {
   async signUp(_dto: SignUpDto): Promise<SignUpResponseDto> {
     const signUpDto = new SignUpDto(_dto);
     const { login, password } = signUpDto;
+
+    this.logger.log(`Attempting to sign up user: ${login}`);
 
     const passwordHash = await generateHash(password);
     const addUserResponse = await this.usersService.createUser(
@@ -42,12 +47,15 @@ export class AuthService {
     if (addUserResponse) {
       const { accessToken: accessTokenUser, refreshToken: refreshTokenUser } =
         await this.createTokenData(
-          addUserResponse?.id || '', // TODO: how to fix it?
+          addUserResponse?.id || '',
           login,
           addUserResponse?.role,
         );
       accessToken = accessTokenUser;
       refreshToken = refreshTokenUser;
+      this.logger.log(
+        `User successfully signed up: ${login} (ID: ${addUserResponse.id})`,
+      );
     }
 
     return {
@@ -59,17 +67,19 @@ export class AuthService {
 
   async signIn(loginDto: LoginDto): Promise<LoginResponseDto | null> {
     const { login, password } = loginDto;
+    this.logger.log(`Attempting to sign in user: ${login}`);
 
     const user = await this.usersService.getUser(login);
 
     if (!user) {
-      // user not found
+      this.logger.warn(`Sign in failed: User not found (${login})`);
       throw new BadRequestException(CustomErrors.INVALID_LOGIN_OR_PASSWORD);
     }
 
     const isMatch = await compareHash(password, user?.password);
 
     if (!isMatch) {
+      this.logger.warn(`Sign in failed: Invalid password for user (${login})`);
       throw new BadRequestException(CustomErrors.INVALID_LOGIN_OR_PASSWORD);
     }
 
@@ -78,6 +88,8 @@ export class AuthService {
       login,
       user.role,
     );
+
+    this.logger.log(`User successfully signed in: ${login}`);
 
     return {
       accessToken,
@@ -89,8 +101,9 @@ export class AuthService {
     refreshTokenDto: RefreshTokenDto,
   ): Promise<RefreshTokenResponseDto> {
     let { refreshToken } = refreshTokenDto;
-
     let accessToken = '';
+
+    this.logger.log(`Attempting to refresh tokens`);
 
     try {
       const payload: IJwtPayload = await this.jwtService.verifyAsync(
@@ -104,6 +117,9 @@ export class AuthService {
         await this.usersService.findRefreshTokenByUserId(payload.sub);
 
       if (currentRefreshToken == '') {
+        this.logger.warn(
+          `Refresh token failed: Token revoked or not found for user ID ${payload.sub}`,
+        );
         throw new UnauthorizedException(CustomErrors.UNAUTHORIZED);
       }
 
@@ -112,7 +128,11 @@ export class AuthService {
 
       accessToken = newAccessToken;
       refreshToken = newRefreshToken;
-    } catch {
+      this.logger.log(
+        `Tokens successfully refreshed for user ID: ${payload.sub}`,
+      );
+    } catch (error) {
+      this.logger.warn(`Refresh token failed: Invalid token`, error);
       throw new UnauthorizedException(CustomErrors.UNAUTHORIZED);
     }
 
@@ -123,7 +143,9 @@ export class AuthService {
   }
 
   async logOut(userId: string): Promise<LogoutResponseDto> {
+    this.logger.log(`Attempting to log out user ID: ${userId}`);
     await this.usersService.inactivateRefreshToken(userId);
+    this.logger.log(`User successfully logged out ID: ${userId}`);
 
     return {
       success: true,

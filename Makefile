@@ -6,10 +6,11 @@ DOCKER-COMPOSE-COMMAND = docker compose -f docker-compose.yml
 RUN = ${DOCKER-COMPOSE-COMMAND} run --rm
 START = ${DOCKER-COMPOSE-COMMAND} up -d --remove-orphans
 STOP = ${DOCKER-COMPOSE-COMMAND} stop
+DOWN = ${DOCKER-COMPOSE-COMMAND} down
 LOGS = ${DOCKER-COMPOSE-COMMAND} logs
 EXEC = ${DOCKER-COMPOSE-COMMAND} exec
 
-.PHONY: help build-backend-image up stop restart status backend-logs backend-console format lint test test-e2e test-cov migration-generate migration-create migration-run migration-revert
+.PHONY: help build-backend-image up stop down restart status backend-logs backend-console format lint test test-e2e test-cov migration-generate migration-create migration-run migration-revert
 
 help: ## Show this help
 	@cat $(MAKEFILE_LIST) | grep -E '^[a-zA-Z_-]+:.*?## .*$$' | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
@@ -25,6 +26,9 @@ up: ## Start all containers in detached mode
 
 stop: ## Stop all containers
 	@$(STOP)
+
+down: ## Stop and remove all containers and networks
+	@$(DOWN)
 
 restart: ## Restart all containers
 	@$(STOP)

@@ -8,6 +8,6 @@ const KB = 1024;
 export const BITES_IN_MB = 1024 * KB;
 export const MAX_FILE_SIZE_MB = 1;
 
-export const ALLOWED_MIMETYPE_REGEXP = new RegExp('.(jpeg|jpg|png|heic|pdf)$'); // jpeg - ?
+export const ALLOWED_MIMETYPE_REGEXP = new RegExp('.(jpeg|jpg|png|heic|pdf)$');
 
 export const ROLES_KEY = 'roles';

@@ -17,7 +17,9 @@ export class MinioService {
     const isExists = await this.isBucketExists(bucket);
 
     if (!isExists) {
+      this.logger.log(`Bucket '${bucket}' does not exist. Creating it...`);
       await this.minioService.client.makeBucket(bucket, DEFAULT_REGION);
+      this.logger.log(`Bucket '${bucket}' created successfully.`);
     }
   }
 
@@ -84,6 +86,7 @@ export class MinioService {
     //   }
 
     try {
+      this.logger.debug(`Executing MinIO putObject for path: ${path}`);
       await this.minioService.client.putObject(
         bucket,
         path,
@@ -100,6 +103,7 @@ export class MinioService {
   }
 
   async deleteFile(bucket: string, path: string) {
+    this.logger.debug(`Executing MinIO removeObject for path: ${path}`);
     return this.minioService.client.removeObject(bucket, path);
   }
 }

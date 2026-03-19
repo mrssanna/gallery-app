@@ -8,6 +8,7 @@ import {
 export class SignUpDto extends IntersectionType(UserLoginDto, UserPasswordDto) {
   constructor(partial: Partial<SignUpDto>) {
     super(partial);
+    // TODO: check it
     // Здесь можно оставить plainToInstance, так как это входная точка,
     // но для единообразия и надежности лучше тоже использовать Object.assign,
     // полагаясь на ValidationPipe контроллера.

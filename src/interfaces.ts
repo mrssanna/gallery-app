@@ -31,7 +31,7 @@ export interface IRefreshJwtPayload {
 }
 
 // eslint-disable-next-line
-export type BucketType = typeof BUCKET_NAME | string; // TODO: fix it?
+export type BucketType = typeof BUCKET_NAME | string;
 
 export enum ImageFormat {
   PNG = 'image/png',

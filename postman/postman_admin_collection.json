@@ -9,7 +9,8 @@
     { "key": "adminPassword", "value": "Password123!", "type": "string" },
     { "key": "adminAccessToken", "value": "", "type": "string" },
     { "key": "dummyEmail", "value": "", "type": "string" },
-    { "key": "dummyPassword", "value": "TestPass123!", "type": "string" }
+    { "key": "dummyPassword", "value": "TestPass123!", "type": "string" },
+    { "key": "dummyUserId", "value": "", "type": "string" }
   ],
   "item": [
     {
@@ -133,6 +134,7 @@
               "pm.test(\"Email matches dummy user\", function () {",
               "    var jsonData = pm.response.json();",
               "    pm.expect(jsonData.login).to.eql(pm.collectionVariables.get(\"dummyEmail\"));",
+              "    pm.collectionVariables.set(\"dummyUserId\", jsonData.id);",
               "});"
             ],
             "type": "text/javascript"
@@ -151,7 +153,41 @@
       }
     },
     {
-      "name": "5. Block User",
+      "name": "5. Get User Images (Admin)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"Response has node array\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.node).to.be.an('array');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": { "type": "bearer", "bearer": [ { "key": "token", "value": "{{adminAccessToken}}", "type": "string" } ] },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/store/admin/image/{{dummyUserId}}?pageNo=1&perPage=10",
+          "host": [ "{{baseUrl}}" ],
+          "path": [ "store", "admin", "image", "{{dummyUserId}}" ],
+          "query": [
+            { "key": "pageNo", "value": "1" },
+            { "key": "perPage", "value": "10" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "6. Block User",
       "event": [
         {
           "listen": "test",
@@ -186,7 +222,7 @@
       }
     },
     {
-      "name": "6. Delete User",
+      "name": "7. Delete User",
       "event": [
         {
           "listen": "test",

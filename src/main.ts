@@ -4,10 +4,16 @@ import { AppModule } from './app.module';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { LoggingInterceptor } from './common-files/interceptors/logging.interceptor';
 import { AllExceptionsFilter } from './common-files/filters/all-exceptions.filter';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
 async function bootstrap() {
   const logger = new Logger('Application');
-  const app = await NestFactory.create(AppModule);
+  // Явно указываем, что используем Express
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
+  // ВАЖНО: Говорим Express доверять заголовкам X-Forwarded-For от прокси (Docker)
+  // Это необходимо для правильной работы Rate Limiting (Throttler)
+  app.set('trust proxy', 1);
 
   const config = new DocumentBuilder()
     .setTitle('Education app')
@@ -38,7 +44,8 @@ async function bootstrap() {
 
   const port = process.env.BACKEND_INNER_PORT || 3001;
 
-  await app.listen(port);
+  // Явно указываем 0.0.0.0, чтобы Docker корректно пробрасывал трафик
+  await app.listen(port, '0.0.0.0');
 
   logger.log(`Application is running on: ${port}`);
 }

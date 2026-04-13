@@ -4,7 +4,7 @@ import * as request from 'supertest';
 import { App } from 'supertest/types';
 import { AppModule } from '../src/app.module';
 
-describe('Authentication Flow (e2e)', () => {
+describe('Authentication & Users Flow (e2e)', () => {
   let app: INestApplication<App>;
   let accessToken: string;
 
@@ -91,5 +91,12 @@ describe('Authentication Flow (e2e)', () => {
     return request(app.getHttpServer() as unknown as App)
       .get('/users/profile')
       .expect(401);
+  });
+
+  it('/users (GET) - should fail if user is not admin', () => {
+    return request(app.getHttpServer() as unknown as App)
+      .get('/users?pageNo=1&perPage=10')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .expect(403); // Ожидаем 403 Forbidden, так как testUser имеет роль 'user', а не 'admin'
   });
 });

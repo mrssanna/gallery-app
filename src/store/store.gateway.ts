@@ -31,7 +31,7 @@ export class StoreGateway implements OnGatewayConnection, OnGatewayDisconnect {
       // Токен может прийти в auth.token (рекомендуется) или в заголовках
       const token =
         (client.handshake.auth?.token as string) ||
-        (client.handshake.headers['authorization']?.split(' ')[1] as string);
+        client.handshake.headers['authorization']?.split(' ')[1];
 
       if (!token) {
         throw new Error('No token provided');

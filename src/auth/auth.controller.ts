@@ -5,7 +5,7 @@ import {
   ApiResponse,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-import { SkipThrottle } from '@nestjs/throttler';
+import { SkipThrottle, Throttle } from '@nestjs/throttler';
 import { AuthGuard } from '../common-files/guards/auth.guard';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
@@ -22,7 +22,8 @@ import { User } from '../common-files/decorators/user.decorator';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @SkipThrottle()
+  // Переопределяем глобальный лимит 'default' для этого эндпоинта
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   @ApiOperation({ summary: 'Register user' })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -35,6 +36,8 @@ export class AuthController {
     return this.authService.signUp(signUpDto);
   }
 
+  // Переопределяем глобальный лимит 'default' для этого эндпоинта
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   @ApiOperation({ summary: 'Login user' })
   @ApiResponse({
     status: HttpStatus.OK,

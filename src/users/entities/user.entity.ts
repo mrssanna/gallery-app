@@ -43,6 +43,12 @@ export class User {
   @Column({ nullable: true })
   lastName: string;
 
+  @Column({ nullable: true })
+  avatar: string;
+
+  // Виртуальное поле для фронтенда (не сохраняется в БД)
+  avatarUrl?: string;
+
   @Column()
   @Exclude() // exclude password from response User item
   password: string;

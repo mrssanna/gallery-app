@@ -1,5 +1,5 @@
 import { ApiPropertyOptional, IntersectionType } from '@nestjs/swagger';
-import { IsEnum, IsOptional } from 'class-validator';
+import { IsEnum, IsOptional, IsString, IsUUID } from 'class-validator';
 import { PaginationDto } from '../../common-files/dto/pagination.dto';
 import { SortImagesFieldType, SortOrderType } from '../../interfaces';
 import { IdDto } from '../../common-files/dto/id-field.dto';
@@ -22,6 +22,20 @@ export class GetImagesDto extends PaginationDto {
   @IsOptional()
   @IsEnum(SortOrderType)
   sortOrder: SortOrderType = SortOrderType.DESC;
+
+  @ApiPropertyOptional({
+    description: 'User ID (only for admins)',
+  })
+  @IsOptional()
+  @IsUUID()
+  userId?: string;
+
+  @ApiPropertyOptional({
+    description: 'Search query (title or author)',
+  })
+  @IsOptional()
+  @IsString()
+  search?: string;
 }
 
 export class GetImagesWithIdDto extends IntersectionType(IdDto, GetImagesDto) {}

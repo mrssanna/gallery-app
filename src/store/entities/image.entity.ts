@@ -25,8 +25,14 @@ export class Image {
   @Column()
   path: string;
 
+  @Column({ nullable: true })
+  thumbnailPath: string;
+
   @Column()
   format: string;
+
+  @Column({ type: 'int', nullable: true })
+  size: number;
 
   @CreateDateColumn()
   createdAt: Date;

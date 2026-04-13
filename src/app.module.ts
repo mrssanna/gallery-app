@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule as NestConfigModule } from '@nestjs/config';
-import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -11,6 +11,7 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { StoreModule } from './store/store.module';
 import { FileModule } from './file/file.module';
+import { CustomThrottlerGuard } from './common-files/guards/custom-throttler.guard';
 
 @Module({
   imports: [
@@ -33,8 +34,9 @@ import { FileModule } from './file/file.module';
   providers: [
     AppService,
     {
+      // Используем наш кастомный Guard вместо стандартного ThrottlerGuard
       provide: APP_GUARD,
-      useClass: ThrottlerGuard,
+      useClass: CustomThrottlerGuard,
     },
   ],
 })

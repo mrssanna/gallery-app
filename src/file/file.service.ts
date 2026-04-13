@@ -4,8 +4,12 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { randomUUID } from 'crypto';
+import * as sharp from 'sharp';
 import { MinioService } from './minio/minio.service';
-import { BUCKET_NAME } from '../common-files/constants/constants';
+import {
+  BUCKET_NAME,
+  BUCKET_THUMBNAILS,
+} from '../common-files/constants/constants';
 import { BucketType } from '../interfaces';
 import { CustomErrors } from '../common-files/constants/custom-errors';
 import { getExtension } from '../common-files/helpers';
@@ -17,31 +21,50 @@ export class FileService {
   private readonly logger = new Logger(FileService.name);
 
   private prepareMinioId = (format: string): string => {
-    const fileId = randomUUID() + '.' + getExtension(format);
+    // Добавляем timestamp прямо в имя файла, чтобы гарантированно обойти кэш браузера
+    const timestamp = Date.now();
+    const fileId = `${randomUUID()}_${timestamp}.${getExtension(format)}`;
     return fileId;
   };
 
   async uploadFile(
     file: Express.Multer.File,
-  ): Promise<{ path: string; bucket: string }> {
+    targetBucket: string = BUCKET_NAME,
+    thumbnailBucket: string = BUCKET_THUMBNAILS,
+  ): Promise<{ path: string; thumbnailPath: string; bucket: string }> {
     try {
       const minioId = this.prepareMinioId(file.mimetype);
-      const bucket = BUCKET_NAME;
+      const thumbMinioId = `thumb_${minioId}`;
 
       this.logger.debug(
-        `Uploading file to MinIO. Bucket: ${bucket}, Path: ${minioId}`,
+        `Uploading file to MinIO. Bucket: ${targetBucket}, Path: ${minioId}`,
       );
 
-      await this.minioService.uploadBuffer(bucket, minioId, {
+      // 1. Загружаем оригинал в целевой бакет
+      await this.minioService.uploadBuffer(targetBucket, minioId, {
         buffer: file.buffer,
         mimetype: file.mimetype,
       });
 
-      this.logger.log(`File successfully uploaded to MinIO. Path: ${minioId}`);
+      // 2. Генерируем миниатюру с помощью sharp (300x300, обрезка по центру)
+      const thumbnailBuffer = await sharp(file.buffer)
+        .resize(300, 300, { fit: 'cover' })
+        .toBuffer();
+
+      // 3. Загружаем миниатюру в указанный бакет для миниатюр
+      await this.minioService.uploadBuffer(thumbnailBucket, thumbMinioId, {
+        buffer: thumbnailBuffer,
+        mimetype: file.mimetype,
+      });
+
+      this.logger.log(
+        `File and thumbnail successfully uploaded to MinIO. Path: ${minioId}`,
+      );
 
       return {
         path: minioId,
-        bucket,
+        thumbnailPath: thumbMinioId,
+        bucket: targetBucket,
       };
     } catch (error) {
       this.logger.error('File upload failed', error);
@@ -49,12 +72,22 @@ export class FileService {
     }
   }
 
-  async removeFile(bucket: string, path: string): Promise<boolean> {
+  async removeFile(
+    bucket: string,
+    path: string,
+    thumbnailBucket?: string,
+    thumbnailPath?: string,
+  ): Promise<boolean> {
     try {
       this.logger.debug(
         `Removing file from MinIO. Bucket: ${bucket}, Path: ${path}`,
       );
       await this.minioService.deleteFile(bucket, path);
+
+      if (thumbnailPath && thumbnailBucket) {
+        await this.minioService.deleteFile(thumbnailBucket, thumbnailPath);
+      }
+
       this.logger.log(`File successfully removed from MinIO. Path: ${path}`);
     } catch (error) {
       this.logger.error('File removal failed', error);

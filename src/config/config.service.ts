@@ -32,8 +32,10 @@ export class ConfigService
   createThrottlerOptions(): ThrottlerModuleOptions {
     return [
       {
-        limit: this.configService.getOrThrow<number>('THROTTLER_LIMIT'),
-        ttl: this.configService.getOrThrow<number>('THROTTLER_TTL'),
+        name: 'default',
+        limit: this.configService.getOrThrow<number>('THROTTLER_LIMIT') || 100,
+        ttl:
+          (this.configService.getOrThrow<number>('THROTTLER_TTL') || 60) * 1000,
       },
     ];
   }
@@ -55,9 +57,8 @@ export class ConfigService
     };
   }
 
-  // eslint-disable-next-line
-  async create(): Promise<MinioOptions> {
-    return this.minioConfig();
+  create(): Promise<MinioOptions> {
+    return Promise.resolve(this.minioConfig());
   }
 
   minioConfig(): MinioOptions {

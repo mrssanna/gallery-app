@@ -1,4 +1,8 @@
-import { IntersectionType, ApiProperty } from '@nestjs/swagger';
+import {
+  IntersectionType,
+  ApiProperty,
+  ApiPropertyOptional,
+} from '@nestjs/swagger';
 import { IdDto } from '../../../common-files/dto/id-field.dto';
 import {
   CreatedAtDto,
@@ -17,12 +21,24 @@ export class ImageItemResponseDto extends IntersectionType(
   @ApiProperty({ description: 'Image url' })
   url: string;
 
+  @ApiProperty({ description: 'Thumbnail url' })
+  thumbnailUrl: string;
+
+  @ApiPropertyOptional({ description: 'User avatar url' })
+  userAvatarUrl?: string;
+
   @ApiProperty({
     description: 'Image format',
     example: ImageFormat.PNG,
     examples: Object.values(ImageFormat),
   })
   format: string;
+
+  @ApiPropertyOptional({
+    description: 'File size in bytes',
+    example: 102456,
+  })
+  size?: number;
 
   @ApiProperty({
     description: 'Date of publish',

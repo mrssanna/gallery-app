@@ -3,99 +3,152 @@ import {
   NotFoundException,
   BadRequestException,
   Logger,
+  Inject,
+  forwardRef,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, FindManyOptions, FindOptionsOrder } from 'typeorm';
 import { User } from './entities/user.entity';
 import { RemoveUserResponseDto } from './dto/remove-user-response.dto';
 import { UserLoginDto } from '../common-files/dto/user-fields.dto';
-import { UpdateProfileWithIdDto } from './dto/update-profile.dto';
+import {
+  UpdateProfileWithIdDto,
+  UpdateProfileDto,
+} from './dto/update-profile.dto';
 import { CustomErrors } from '../common-files/constants/custom-errors';
 import { GetAllUsersResponseDto } from './dto/get-all-users-response.dto';
 import { GetAllUsersDto } from './dto/get-all-users.dto';
+import { StoreService } from '../store/store.service';
+import { FileService } from '../file/file.service';
+import { BUCKET_AVATARS } from '../common-files/constants/constants';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
+    @Inject(forwardRef(() => StoreService))
+    private storeService: StoreService,
+    private fileService: FileService,
   ) {}
 
   private readonly logger = new Logger(UsersService.name);
+
+  // Хелпер для добавления URL аватарки к пользователю
+  private async mapUserWithAvatar(user: User): Promise<User> {
+    if (user.avatar) {
+      user.avatarUrl = await this.fileService.getFilePath(
+        user.avatar,
+        BUCKET_AVATARS,
+      );
+
+      const originalPath = user.avatar.replace(/^thumb_/, '');
+      Object.assign(user, {
+        originalAvatarUrl: await this.fileService.getFilePath(
+          originalPath,
+          BUCKET_AVATARS,
+        ),
+      });
+    }
+    return user;
+  }
 
   async createUser(login: string, password: string): Promise<User | null> {
     this.logger.debug(`Checking if user exists: ${login}`);
     const isAlreadyExist = await this.usersRepository.exists({
       where: { login },
     });
-
-    if (isAlreadyExist) {
-      this.logger.warn(`Failed to create user: ${login} already exists`);
+    if (isAlreadyExist)
       throw new BadRequestException(CustomErrors.USER_ALREADY_EXISTS);
-    }
 
-    const user = this.usersRepository.create({
-      login,
-      password,
-    });
-
+    const user = this.usersRepository.create({ login, password });
     await this.usersRepository.save(user);
-    this.logger.log(`User created in DB: ${login} (ID: ${user.id})`);
-
-    return user;
+    return this.mapUserWithAvatar(user);
   }
 
   async getProfile(userId: string): Promise<User | null> {
-    this.logger.debug(`Fetching profile for user ID: ${userId}`);
     const user = await this.usersRepository.findOneBy({ id: userId });
-
-    if (!user) {
-      this.logger.warn(`Profile not found for user ID: ${userId}`);
-      throw new NotFoundException(CustomErrors.USER_NOT_FOUND);
-    }
-
-    return user;
+    if (!user) throw new NotFoundException(CustomErrors.USER_NOT_FOUND);
+    return this.mapUserWithAvatar(user);
   }
 
   async updateProfile(_dto: UpdateProfileWithIdDto): Promise<User | null> {
     const updateProfileDto = new UpdateProfileWithIdDto(_dto);
     const { id } = updateProfileDto;
 
-    this.logger.debug(`Updating profile for user ID: ${id}`);
     const user = await this.usersRepository.findOneBy({ id });
-
-    if (!user) {
-      this.logger.warn(`Failed to update profile: User not found (ID: ${id})`);
-      throw new BadRequestException(CustomErrors.USER_IS_NOT_EXIST);
-    }
+    if (!user) throw new BadRequestException(CustomErrors.USER_IS_NOT_EXIST);
 
     Object.keys(updateProfileDto).forEach((key) => {
       // eslint-disable-next-line
       user[key] = updateProfileDto[key];
     });
 
-    const updatedUser = await this.usersRepository.save(user);
-    this.logger.log(`Profile updated for user ID: ${id}`);
-    return updatedUser;
+    await this.usersRepository.save(user);
+    return this.mapUserWithAvatar(user);
+  }
+
+  async uploadAvatar(userId: string, file: Express.Multer.File) {
+    const user = await this.usersRepository.findOneBy({ id: userId });
+    if (!user) throw new NotFoundException(CustomErrors.USER_NOT_FOUND);
+
+    if (user.avatar) {
+      try {
+        const originalPath = user.avatar.replace(/^thumb_/, '');
+        await this.fileService.removeFile(
+          BUCKET_AVATARS,
+          originalPath,
+          BUCKET_AVATARS,
+          user.avatar,
+        );
+      } catch {
+        this.logger.warn(`Failed to remove old avatar for user ${userId}`);
+      }
+    }
+
+    // Загружаем новую аватарку. FileService сгенерирует НОВЫЙ UUID для нее.
+    const { thumbnailPath, path: originalPath } =
+      await this.fileService.uploadFile(file, BUCKET_AVATARS, BUCKET_AVATARS);
+
+    // Сохраняем НОВЫЙ путь в базу данных
+    user.avatar = thumbnailPath;
+    await this.usersRepository.save(user);
+
+    return {
+      success: true,
+      avatarUrl: await this.fileService.getFilePath(
+        thumbnailPath,
+        BUCKET_AVATARS,
+      ),
+      originalAvatarUrl: await this.fileService.getFilePath(
+        originalPath,
+        BUCKET_AVATARS,
+      ),
+    };
+  }
+
+  async updateUserByAdmin(login: string, dto: UpdateProfileDto) {
+    const user = await this.usersRepository.findOneBy({ login });
+    if (!user) throw new NotFoundException(CustomErrors.USER_NOT_FOUND);
+
+    Object.keys(dto).forEach((key) => {
+      // eslint-disable-next-line
+      user[key] = dto[key];
+    });
+
+    await this.usersRepository.save(user);
+    return { success: true };
   }
 
   async findAll(dto: GetAllUsersDto): Promise<GetAllUsersResponseDto> {
     const { pageNo, perPage, role, sortField, sortOrder } = dto;
     const skip = (pageNo - 1) * perPage;
 
-    this.logger.debug(
-      `Fetching all users. Page: ${pageNo}, PerPage: ${perPage}, Role: ${role}`,
-    );
-
     const orderOptions: FindOptionsOrder<User> = {};
-    if (sortField && sortOrder) {
-      orderOptions[sortField] = sortOrder;
-    }
+    if (sortField && sortOrder) orderOptions[sortField] = sortOrder;
 
     const requestOptions: FindManyOptions<User> = {
-      where: {
-        ...(role ? { role } : {}),
-      },
+      where: { ...(role ? { role } : {}) },
       ...(perPage && pageNo ? { skip, take: perPage } : {}),
       ...(sortField && sortOrder ? { order: orderOptions } : {}),
     };
@@ -103,10 +156,12 @@ export class UsersService {
     const [users, count] =
       await this.usersRepository.findAndCount(requestOptions);
 
-    this.logger.log(`Found ${count} users matching criteria`);
+    const mappedUsers = await Promise.all(
+      users.map((u) => this.mapUserWithAvatar(u)),
+    );
 
     return {
-      node: users,
+      node: mappedUsers,
       pageInfo: {
         pageNo,
         perPage,
@@ -118,15 +173,9 @@ export class UsersService {
 
   async findOneByLogin(userLoginDto: UserLoginDto): Promise<User | null> {
     const { login } = userLoginDto;
-    this.logger.debug(`Fetching user by login: ${login}`);
     const user = await this.usersRepository.findOneBy({ login });
-
-    if (!user) {
-      this.logger.warn(`User not found by login: ${login}`);
-      throw new NotFoundException(CustomErrors.USER_NOT_FOUND);
-    }
-
-    return user;
+    if (!user) throw new NotFoundException(CustomErrors.USER_NOT_FOUND);
+    return this.mapUserWithAvatar(user);
   }
 
   async remove(
@@ -135,38 +184,53 @@ export class UsersService {
     const { login } = userLoginDto;
     this.logger.log(`Attempting to remove user: ${login}`);
 
+    const user = await this.usersRepository.findOne({
+      where: { login },
+      relations: ['images'],
+    });
+
+    if (!user) {
+      throw new NotFoundException(CustomErrors.USER_NOT_FOUND);
+    }
+
     try {
-      await this.usersRepository.delete({ login });
+      if (user.images && user.images.length > 0) {
+        this.logger.log(
+          `Removing ${user.images.length} images for user ${login}`,
+        );
+        for (const image of user.images) {
+          await this.storeService.removeFile(user.id, image.id);
+        }
+      }
+
+      if (user.avatar) {
+        const originalPath = user.avatar.replace(/^thumb_/, '');
+        await this.fileService
+          .removeFile(BUCKET_AVATARS, originalPath, BUCKET_AVATARS, user.avatar)
+          .catch(() => {});
+      }
+
+      await this.usersRepository.remove(user);
       this.logger.log(`User removed successfully: ${login}`);
     } catch (err) {
       this.logger.error(`Failed to remove user: ${login}`, err);
       throw new BadRequestException(CustomErrors.DELETE_USER_ERROR);
     }
-
-    return {
-      success: true,
-    };
+    return { success: true };
   }
 
   async blockUser(
     userLoginDto: UserLoginDto,
   ): Promise<RemoveUserResponseDto | null> {
     const { login } = userLoginDto;
-    this.logger.log(`Attempting to block user: ${login}`);
     const user = await this.usersRepository.findOneBy({ login });
 
-    if (!user) {
-      this.logger.warn(`Failed to block user: User not found (${login})`);
-      throw new NotFoundException(CustomErrors.USER_NOT_FOUND);
-    }
+    if (!user) throw new NotFoundException(CustomErrors.USER_NOT_FOUND);
 
-    user.isBlocked = true;
+    user.isBlocked = !user.isBlocked;
     await this.usersRepository.save(user);
-    this.logger.log(`User blocked successfully: ${login}`);
 
-    return {
-      success: true,
-    };
+    return { success: true };
   }
 
   // ----------------------------------------------------------------------------------------------
@@ -179,32 +243,19 @@ export class UsersService {
     refreshToken: string,
   ): Promise<User | null> {
     const user = await this.usersRepository.findOneBy({ id: userId });
-
-    if (!user) {
-      throw new BadRequestException(CustomErrors.USER_IS_NOT_EXIST);
-    }
-
+    if (!user) throw new BadRequestException(CustomErrors.USER_IS_NOT_EXIST);
     user.refreshToken = refreshToken;
     return this.usersRepository.save(user);
   }
 
   async findRefreshTokenByUserId(userId: string): Promise<string> {
-    const user = await this.usersRepository.findOne({
-      where: {
-        id: userId,
-      },
-    });
-
+    const user = await this.usersRepository.findOne({ where: { id: userId } });
     return user?.refreshToken || '';
   }
 
   async inactivateRefreshToken(userId: string): Promise<User | null> {
     const user = await this.usersRepository.findOneBy({ id: userId });
-
-    if (!user) {
-      throw new BadRequestException(CustomErrors.USER_IS_NOT_EXIST);
-    }
-
+    if (!user) throw new BadRequestException(CustomErrors.USER_IS_NOT_EXIST);
     user.refreshToken = '';
     return this.usersRepository.save(user);
   }

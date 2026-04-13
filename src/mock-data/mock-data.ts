@@ -1,4 +1,9 @@
-import { GenderType, RoleType, SortOrderType } from '../interfaces';
+import {
+  GenderType,
+  RoleType,
+  SortOrderType,
+  SortUsersFieldType,
+} from '../interfaces';
 
 // Create user
 export const mockCreateUser = {
@@ -11,7 +16,7 @@ export const mockGetAllRequest = {
   pageNo: 1,
   perPage: 5,
   role: RoleType.USER,
-  sortField: 'createdAt',
+  sortField: SortUsersFieldType.CREATED_AT,
   sortOrder: SortOrderType.DESC,
 };
 

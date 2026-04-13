@@ -31,7 +31,7 @@ export interface IRefreshJwtPayload {
 }
 
 // eslint-disable-next-line
-export type BucketType = typeof BUCKET_NAME | string;
+export type BucketType = typeof BUCKET_NAME | string; // TODO: fix it?
 
 export enum ImageFormat {
   PNG = 'image/png',
@@ -45,8 +45,10 @@ export enum SortImagesFieldType {
 }
 
 export enum SortUsersFieldType {
+  ID = 'id',
+  LOGIN = 'login',
   CREATED_AT = 'createdAt',
-  TITLE = 'login',
+  UPDATED_AT = 'updatedAt',
 }
 
 export enum SortOrderType {

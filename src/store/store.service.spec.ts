@@ -8,6 +8,10 @@ import { Image } from './entities/image.entity';
 import { User } from '../users/entities/user.entity';
 import { CustomErrors } from '../common-files/constants/custom-errors';
 import { RoleType } from '../interfaces';
+import {
+  BUCKET_NAME,
+  BUCKET_THUMBNAILS,
+} from '../common-files/constants/constants';
 
 describe('StoreService', () => {
   let service: StoreService;
@@ -84,10 +88,10 @@ describe('StoreService', () => {
       mockUserRepository.findOne.mockResolvedValue(mockUser);
       mockFileService.uploadFile.mockResolvedValue({
         path: 'uuid.png',
+        thumbnailPath: 'thumb_uuid.png',
         bucket: 'images',
       });
 
-      // Исправлено: убран async без await, добавлена типизация
       mockImageRepository.save.mockImplementation((img: Image) => {
         img.id = 'img-123';
         return Promise.resolve(img);
@@ -104,7 +108,14 @@ describe('StoreService', () => {
         'upload_status',
         expect.objectContaining({ status: 'processing' }),
       );
-      expect(mockFileService.uploadFile).toHaveBeenCalledWith(mockFile);
+
+      // ИСПРАВЛЕНО: Теперь мы ожидаем, что метод будет вызван с тремя аргументами (файл и два бакета)
+      expect(mockFileService.uploadFile).toHaveBeenCalledWith(
+        mockFile,
+        BUCKET_NAME,
+        BUCKET_THUMBNAILS,
+      );
+
       expect(mockImageRepository.save).toHaveBeenCalled();
       expect(mockStoreGateway.emitToUser).toHaveBeenCalledWith(
         mockDto.id,

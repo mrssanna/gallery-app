@@ -1,13 +1,39 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { MinioService as MinioServiceLibrary } from 'nestjs-minio-client';
+import * as Minio from 'minio';
 import { DEFAULT_REGION } from '../../common-files/constants/constants';
 import { BucketType } from '../../interfaces';
+import { ConfigService } from '../../config/config.service';
 
 @Injectable()
 export class MinioService {
-  constructor(private readonly minioService: MinioServiceLibrary) {}
-
   private readonly logger = new Logger(MinioService.name);
+  private presignedClient: Minio.Client;
+
+  constructor(
+    private readonly minioService: MinioServiceLibrary,
+    private readonly configService: ConfigService,
+  ) {
+    const minioConfig = this.configService.minioConfig();
+    let endPoint = minioConfig.endPoint;
+    let port = minioConfig.port;
+
+    if (minioConfig.publicURI) {
+      const publicUrl = new URL(minioConfig.publicURI);
+      endPoint = publicUrl.hostname;
+      port =
+        Number(publicUrl.port) || (publicUrl.protocol === 'https:' ? 443 : 80);
+    }
+
+    this.presignedClient = new Minio.Client({
+      endPoint: endPoint,
+      port: port,
+      useSSL: minioConfig.useSSL,
+      accessKey: minioConfig.accessKey,
+      secretKey: minioConfig.secretKey,
+      region: DEFAULT_REGION, // <-- ВАЖНО: Явно указываем регион, чтобы избежать сетевых запросов при генерации ссылок
+    });
+  }
 
   async isBucketExists(bucket: BucketType): Promise<boolean> {
     return this.minioService.client.bucketExists(bucket);
@@ -28,62 +54,23 @@ export class MinioService {
     bucket: BucketType,
     expiresIn?: number,
   ): Promise<string> {
-    const url = expiresIn
-      ? await this.minioService.client.presignedUrl(
-          'GET',
-          bucket,
-          path,
-          expiresIn,
-        )
-      : await this.minioService.client.presignedUrl('GET', bucket, path);
-    return url.toString();
+    const urlString = expiresIn
+      ? await this.presignedClient.presignedUrl('GET', bucket, path, expiresIn)
+      : await this.presignedClient.presignedUrl('GET', bucket, path);
+
+    return urlString;
   }
-
-  // async getDownloadUrl(
-  //   minioPath: MinioPath,
-  //   expiresIn?: number,
-  // ): Promise<string> {
-  //   const { bucket, path } = minioPath;
-
-  //   const minioConfig = this.configService.minioConfig();
-
-  //   const publicURL = new URL(minioConfig.publicURI);
-
-  //   const presignedUrl = expiresIn
-  //     ? this.minioService.client.presignedUrl('GET', bucket, path, expiresIn)
-  //     : this.minioService.client.presignedUrl('GET', bucket, path);
-
-  //   const minioObjectURL = await presignedUrl.catch((err) => {
-  //     this.logger.error(err);
-  //     throw new NotFoundException(CustomErrors.FILE_NOT_FOUND);
-  //   });
-
-  //   const url = new URL(minioObjectURL);
-
-  //   url.host = publicURL.host;
-  //   url.port = publicURL.port;
-  //   url.protocol = publicURL.protocol;
-
-  //   return url.toString();
-  // }
 
   async uploadBuffer(bucket: string, path: string, file: any) {
     await this.checkBucket(bucket);
 
     // eslint-disable-next-line
     const mimetype = file?.mimetype || '';
-    // const imageFormat = parseFormat(mimetype);
 
     const metadata: Record<string, string | number> = {
       // eslint-disable-next-line
       'Content-Type': mimetype || '',
     };
-    //   const imageSize = await getImageSize(file.buffer);
-
-    //   if (imageSize) {
-    //     metadata.width = imageSize.width;
-    //     metadata.height = imageSize.height;
-    //   }
 
     try {
       this.logger.debug(`Executing MinIO putObject for path: ${path}`);

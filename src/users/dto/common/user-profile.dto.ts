@@ -44,4 +44,12 @@ export class UserPersonalInfoDto {
   @IsString()
   @IsOptional()
   lastName: string;
+
+  @ApiPropertyOptional({ description: 'User avatar URL (thumbnail)' })
+  @Expose()
+  avatarUrl?: string;
+
+  @ApiPropertyOptional({ description: 'User original avatar URL' })
+  @Expose()
+  originalAvatarUrl?: string;
 }

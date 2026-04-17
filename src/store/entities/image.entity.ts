@@ -5,6 +5,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   ManyToOne,
+  Index,
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 
@@ -34,14 +35,16 @@ export class Image {
   @Column({ type: 'int', nullable: true })
   size: number;
 
+  @Index() // Индекс для сортировки картинок по дате создания (используется в галерее)
   @CreateDateColumn()
   createdAt: Date;
 
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @Column({ nullable: true })
-  publishedAt: Date;
+  @Index() // Индекс для быстрого поиска опубликованных картинок (используется в ленте)
+  @Column({ type: 'timestamp', nullable: true })
+  publishedAt: Date | null;
 
   @ManyToOne(() => User, (user) => user.images)
   user: User;

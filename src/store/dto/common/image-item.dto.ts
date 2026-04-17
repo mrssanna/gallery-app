@@ -40,9 +40,10 @@ export class ImageItemResponseDto extends IntersectionType(
   })
   size?: number;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Date of publish',
     example: '2025-01-30T20:17:24.800Z',
+    nullable: true,
   })
-  publishedAt: Date;
+  publishedAt: Date | null;
 }

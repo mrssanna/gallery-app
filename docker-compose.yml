@@ -14,6 +14,36 @@ services:
     ports:
       - ${BACKEND_OUTER_PORT}:${BACKEND_INNER_PORT}
 
+  admin-frontend:
+    image: node:22
+    volumes:
+      - ./admin-frontend:/app
+    working_dir: /app
+    command: npm run dev
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    env_file:
+      - ./admin-frontend/.env
+    tty: true
+    stdin_open: true
+
+  user-frontend:
+    build:
+      context: ./user-frontend
+      dockerfile: Dockerfile
+    volumes:
+      - ./user-frontend:/app
+      - /app/node_modules # Изолируем node_modules, чтобы не перезаписывать их локальными файлами
+      - /app/.next # Изолируем кэш Next.js
+    ports:
+      - "3002:3002"
+    depends_on:
+      - backend
+    tty: true
+    stdin_open: true
+
   postgres:
     container_name: ${POSTGRES_HOST}-db
     image: postgres:latest
@@ -26,11 +56,13 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PW}
       - POSTGRES_DB=${POSTGRES_DB} # optional (specify default database instead of $POSTGRES_DB)
     ports:
-      - ${POSTGRES_PORT}:${POSTGRES_PORT}
+      - 5433:5432
+      # - ${POSTGRES_PORT}:${POSTGRES_PORT}
     restart: always
 
   minio:
     image: minio/minio
+    # image: harbor.umbrellait.tech/uit/minio/minio:latest
     restart: always
     ports:
       - "9000:9000"
@@ -42,6 +74,7 @@ services:
       - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
     env_file:
       - .env
+    # command: server --console-address ":9001" /data
     command: server --address ":9000" --console-address ":9001" /data/
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]

@@ -10,7 +10,7 @@ DOWN = ${DOCKER-COMPOSE-COMMAND} down
 LOGS = ${DOCKER-COMPOSE-COMMAND} logs
 EXEC = ${DOCKER-COMPOSE-COMMAND} exec
 
-.PHONY: help build-backend-image up stop down restart status backend-logs backend-console format lint test test-e2e test-cov migration-generate migration-create migration-run migration-revert
+.PHONY: help build-backend-image up stop down restart status backend-logs backend-console admin-logs admin-console user-logs user-console format lint test test-e2e test-cov migration-generate migration-create migration-run migration-revert admin-install admin-dev user-install user-dev
 
 help: ## Show this help
 	@cat $(MAKEFILE_LIST) | grep -E '^[a-zA-Z_-]+:.*?## .*$$' | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
@@ -43,6 +43,18 @@ backend-logs: ## Follow backend logs
 backend-console: ## Open bash console in backend container
 	@$(EXEC) backend bash
 
+admin-logs: ## Follow admin frontend logs
+	@$(LOGS) -f admin-frontend
+
+admin-console: ## Open bash console in admin frontend container
+	@$(EXEC) admin-frontend bash
+
+user-logs: ## Follow user frontend logs
+	@$(LOGS) -f user-frontend
+
+user-console: ## Open bash console in user frontend container
+	@$(EXEC) user-frontend bash
+
 # --- Code Quality & Tests ---
 
 format: ## Format code using prettier
@@ -73,3 +85,19 @@ migration-run: ## Run pending migrations
 
 migration-revert: ## Revert last migration
 	@$(EXEC) backend npm run migration:revert
+
+# --- Admin Frontend ---
+
+admin-install: ## Install dependencies for admin frontend
+	cd admin-frontend && npm install
+
+admin-dev: ## Start admin frontend development server
+	cd admin-frontend && npm run dev
+
+# --- User Frontend ---
+
+user-install: ## Install dependencies for user frontend
+	cd user-frontend && npm install
+
+user-dev: ## Start user frontend development server
+	cd user-frontend && npm run dev

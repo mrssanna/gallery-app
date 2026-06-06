@@ -1,7 +1,6 @@
 # Gallery Project (Monorepo)
 
-Проект содержит бэкенд и два фронтенда.
-
+![Backend CI](https://github.com/mrssanna/gallery-app/actions/workflows/backend.yml/badge.svg)
 ![Admin Frontend CI](https://github.com/mrssanna/gallery-app/actions/workflows/admin-frontend.yml/badge.svg)
 ![User Frontend CI](https://github.com/mrssanna/gallery-app/actions/workflows/user-frontend.yml/badge.svg)
 
@@ -23,8 +22,10 @@
   ```
 
 ## GitHub Actions (CI)
-Проверки линтера и сборки настроены для обоих фронтендов. Статус проверок отображается бейджами выше.
 
+Проверки линтера, тестов и сборки настроены для всех частей проекта. Статус проверок отображается бейджами выше.
+
+- **Backend CI**: запускается при изменениях в корневой папке (код сервера и тесты).
 - **Admin Frontend CI**: запускается при изменениях в папке `admin-frontend`.
 - **User Frontend CI**: запускается при изменениях в папке `user-frontend`.
 
@@ -32,6 +33,7 @@
 1. Устанавливаются ли зависимости (`npm ci`).
 2. Нет ли ошибок в стиле кода (`npm run lint`).
 3. Собирается ли проект без ошибок (`npm run build`).
+4. **Проходят ли автоматические тесты (только для бэкенда, `npm run test`).**
 
 Статус проверок можно увидеть во вкладке **Actions** вашего репозитория.
 

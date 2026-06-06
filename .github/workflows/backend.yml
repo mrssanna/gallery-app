@@ -1,0 +1,46 @@
+name: Backend CI
+
+on:
+  push:
+    paths:
+      - 'src/**'
+      - 'test/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'tsconfig.json'
+      - '.github/workflows/backend.yml'
+    # Игнорируем изменения во фронтендах, чтобы не запускать тесты бэка зря
+    paths-ignore:
+      - 'admin-frontend/**'
+      - 'user-frontend/**'
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'test/**'
+      - 'package.json'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run lint
+        run: npm run lint
+
+      - name: Build project
+        run: npm run build
+
+      - name: Run unit tests
+        run: npm run test

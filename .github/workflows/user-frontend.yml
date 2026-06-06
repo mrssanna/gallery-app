@@ -2,12 +2,12 @@ name: User Frontend CI
 
 on:
   push:
+    branches: [ main ]
     paths:
       - 'user-frontend/**'
       - '.github/workflows/user-frontend.yml'
   pull_request:
-    paths:
-      - 'user-frontend/**'
+    branches: [ main ]
 
 jobs:
   build:

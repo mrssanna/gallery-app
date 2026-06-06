@@ -2,26 +2,33 @@ name: Backend CI
 
 on:
   push:
+    branches: [ main ]
     paths:
       - 'src/**'
       - 'test/**'
-      - 'package.json'
-      - 'package-lock.json'
-      - 'tsconfig.json'
+      - 'package*.json'
+      - 'tsconfig*.json'
+      - 'eslint.config.mjs'
       - '.github/workflows/backend.yml'
-    # Игнорируем изменения во фронтендах, чтобы не запускать тесты бэка зря
-    paths-ignore:
-      - 'admin-frontend/**'
-      - 'user-frontend/**'
   pull_request:
-    paths:
-      - 'src/**'
-      - 'test/**'
-      - 'package.json'
+    branches: [ main ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    env:
+      JWT_ACCESS_TOKEN_SECRET: test_secret_key_123
+      JWT_ACCESS_TOKEN_EXPIRATION_TIME: 15m
+      JWT_REFRESH_TOKEN_SECRET: test_refresh_key_456
+      JWT_REFRESH_TOKEN_EXPIRATION_TIME: 7d
+      BCRYPT_SALT_ROUNDS: 10
+      MINIO_ENDPOINT: localhost
+      MINIO_PORT: 9000
+      MINIO_ROOT_USER: admin
+      MINIO_ROOT_PASSWORD: password
+      MINIO_USE_SSL: false
+      MINIO_PUBLIC_URI: http://localhost:9000
 
     steps:
       - name: Checkout repository

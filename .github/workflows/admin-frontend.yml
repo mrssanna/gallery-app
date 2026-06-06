@@ -2,12 +2,12 @@ name: Admin Frontend CI
 
 on:
   push:
+    branches: [ main ]
     paths:
       - 'admin-frontend/**'
       - '.github/workflows/admin-frontend.yml'
   pull_request:
-    paths:
-      - 'admin-frontend/**'
+    branches: [ main ]
 
 jobs:
   build:

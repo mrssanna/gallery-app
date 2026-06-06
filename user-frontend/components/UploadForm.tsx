@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Paper, Typography, Grid, TextField, Button } from '@mui/material';
+import { useState } from "react";
+import { Paper, Typography, Grid, TextField, Button } from "@mui/material";
 
 interface UploadFormProps {
   onUpload: (file: File, title: string, author: string) => Promise<void>;
@@ -7,8 +7,8 @@ interface UploadFormProps {
 }
 
 export const UploadForm = ({ onUpload, uploading }: UploadFormProps) => {
-  const [title, setTitle] = useState('');
-  const [author, setAuthor] = useState('');
+  const [title, setTitle] = useState("");
+  const [author, setAuthor] = useState("");
   const [file, setFile] = useState<File | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -16,13 +16,13 @@ export const UploadForm = ({ onUpload, uploading }: UploadFormProps) => {
     if (!file) return;
 
     await onUpload(file, title, author);
-    
+
     // Очищаем форму после успешной отправки (если onUpload не выбросил ошибку)
-    setTitle('');
-    setAuthor('');
+    setTitle("");
+    setAuthor("");
     setFile(null);
-    const fileInput = document.getElementById('fileInput') as HTMLInputElement;
-    if (fileInput) fileInput.value = '';
+    const fileInput = document.getElementById("fileInput") as HTMLInputElement;
+    if (fileInput) fileInput.value = "";
   };
 
   return (
@@ -54,8 +54,10 @@ export const UploadForm = ({ onUpload, uploading }: UploadFormProps) => {
             <TextField
               id="fileInput"
               type="file"
-              inputProps={{ accept: 'image/*' }}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFile(e.target.files?.[0] || null)}
+              inputProps={{ accept: "image/*" }}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setFile(e.target.files?.[0] || null)
+              }
               fullWidth
               size="small"
               required
@@ -69,7 +71,7 @@ export const UploadForm = ({ onUpload, uploading }: UploadFormProps) => {
               fullWidth
               size="large"
             >
-              {uploading ? 'Загрузка...' : 'Загрузить'}
+              {uploading ? "Загрузка..." : "Загрузить"}
             </Button>
           </Grid>
         </Grid>

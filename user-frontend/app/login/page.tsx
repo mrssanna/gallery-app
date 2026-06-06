@@ -1,13 +1,20 @@
 "use client";
-import { useState } from 'react';
-import Link from 'next/link';
-import { Box, Paper, Typography, TextField, Button, Alert } from '@mui/material';
-import { useLogin } from '../../hooks/useAuthQueries';
+import { useState } from "react";
+import Link from "next/link";
+import {
+  Box,
+  Paper,
+  Typography,
+  TextField,
+  Button,
+  Alert,
+} from "@mui/material";
+import { useLogin } from "../../hooks/useAuthQueries";
 
 export default function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
   // Используем мутацию из React Query
   const loginMutation = useLogin();
 
@@ -18,12 +25,17 @@ export default function Login() {
   };
 
   return (
-    <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
-      <Paper elevation={3} sx={{ p: 4, width: '100%', maxWidth: 400 }}>
+    <Box
+      display="flex"
+      justifyContent="center"
+      alignItems="center"
+      minHeight="100vh"
+    >
+      <Paper elevation={3} sx={{ p: 4, width: "100%", maxWidth: 400 }}>
         <Typography variant="h5" align="center" gutterBottom fontWeight="bold">
           Вход в систему
         </Typography>
-        
+
         {/* Показываем ошибку, если мутация завершилась с ошибкой */}
         {loginMutation.isError && (
           <Alert severity="error" sx={{ mb: 2 }}>
@@ -31,7 +43,11 @@ export default function Login() {
           </Alert>
         )}
 
-        <form onSubmit={handleSubmit} autoComplete="off" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <form
+          onSubmit={handleSubmit}
+          autoComplete="off"
+          style={{ display: "flex", flexDirection: "column", gap: "16px" }}
+        >
           <TextField
             label="Email"
             type="email"
@@ -57,13 +73,16 @@ export default function Login() {
             size="large"
             sx={{ mt: 1 }}
           >
-            {loginMutation.isPending ? 'Вход...' : 'Войти'}
+            {loginMutation.isPending ? "Вход..." : "Войти"}
           </Button>
         </form>
-        
+
         <Typography align="center" mt={3} variant="body2" color="textSecondary">
-          Нет аккаунта?{' '}
-          <Link href="/register" style={{ color: '#1976d2', textDecoration: 'none' }}>
+          Нет аккаунта?{" "}
+          <Link
+            href="/register"
+            style={{ color: "#1976d2", textDecoration: "none" }}
+          >
             Зарегистрироваться
           </Link>
         </Typography>

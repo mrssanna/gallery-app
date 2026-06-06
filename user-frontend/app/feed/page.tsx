@@ -1,8 +1,8 @@
 "use client";
-import { useEffect, useRef, useCallback, useState } from 'react';
-import { Header } from '../../components/Header';
-import { ImageCard } from '../../components/ImageCard';
-import { LightboxDialog } from '../../components/ui/LightboxDialog';
+import { useEffect, useRef, useCallback, useState } from "react";
+import { Header } from "../../components/Header";
+import { ImageCard } from "../../components/ImageCard";
+import { LightboxDialog } from "../../components/ui/LightboxDialog";
 import {
   Box,
   Typography,
@@ -11,9 +11,9 @@ import {
   CircularProgress,
   TextField,
   InputAdornment,
-} from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
-import { useFeedImages } from '../../hooks/useImages';
+} from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
+import { useFeedImages } from "../../hooks/useImages";
 
 export default function Feed() {
   const perPage = 12;
@@ -21,8 +21,8 @@ export default function Feed() {
   const observerTarget = useRef<HTMLDivElement | null>(null);
 
   // Состояния для поиска
-  const [searchInput, setSearchInput] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [searchInput, setSearchInput] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
 
   // Debounce логика: обновляем реальный поисковый запрос только через 500мс после окончания ввода
   useEffect(() => {
@@ -49,13 +49,13 @@ export default function Feed() {
         fetchNextPage();
       }
     },
-    [fetchNextPage, hasNextPage, isFetchingNextPage]
+    [fetchNextPage, hasNextPage, isFetchingNextPage],
   );
 
   useEffect(() => {
     const observer = new IntersectionObserver(handleObserver, {
       root: null,
-      rootMargin: '100px',
+      rootMargin: "100px",
       threshold: 0.1,
     });
 
@@ -73,15 +73,38 @@ export default function Feed() {
   const images = data ? data.pages.flatMap((page) => page.node) : [];
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', bgcolor: '#f0f2f5' }}>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        minHeight: "100vh",
+        bgcolor: "#f0f2f5",
+      }}
+    >
       <Header />
 
-      <Box component="main" sx={{ flex: 1, p: { xs: 2, md: 4 }, maxWidth: '1400px', mx: 'auto', width: '100%' }}>
-        <Box display="flex" flexDirection={{ xs: 'column', sm: 'row' }} justifyContent="space-between" alignItems="center" mb={4} gap={2}>
+      <Box
+        component="main"
+        sx={{
+          flex: 1,
+          p: { xs: 2, md: 4 },
+          maxWidth: "1400px",
+          mx: "auto",
+          width: "100%",
+        }}
+      >
+        <Box
+          display="flex"
+          flexDirection={{ xs: "column", sm: "row" }}
+          justifyContent="space-between"
+          alignItems="center"
+          mb={4}
+          gap={2}
+        >
           <Typography variant="h4" fontWeight="bold" m={0}>
             🌟 Лента публикаций
           </Typography>
-          
+
           {/* Поле поиска */}
           <TextField
             placeholder="Поиск по названию или автору..."
@@ -96,22 +119,27 @@ export default function Feed() {
                 </InputAdornment>
               ),
             }}
-            sx={{ width: { xs: '100%', sm: '300px' }, bgcolor: 'white' }}
+            sx={{ width: { xs: "100%", sm: "300px" }, bgcolor: "white" }}
           />
         </Box>
-        
-        {status === 'pending' ? (
+
+        {status === "pending" ? (
           <Box display="flex" justifyContent="center" p={4}>
             <CircularProgress />
           </Box>
-        ) : status === 'error' ? (
+        ) : status === "error" ? (
           <Typography color="error" textAlign="center">
             Ошибка загрузки ленты: {error.message}
           </Typography>
         ) : images.length === 0 ? (
-          <Paper sx={{ p: 6, textAlign: 'center', borderRadius: 4 }} elevation={0}>
+          <Paper
+            sx={{ p: 6, textAlign: "center", borderRadius: 4 }}
+            elevation={0}
+          >
             <Typography color="textSecondary" variant="h6">
-              {debouncedSearch ? 'По вашему запросу ничего не найдено.' : 'В ленте пока нет картинок. Будьте первым, кто опубликует что-нибудь!'}
+              {debouncedSearch
+                ? "По вашему запросу ничего не найдено."
+                : "В ленте пока нет картинок. Будьте первым, кто опубликует что-нибудь!"}
             </Typography>
           </Paper>
         ) : (
@@ -119,18 +147,22 @@ export default function Feed() {
             <Grid container spacing={4}>
               {images.map((img) => (
                 <Grid item xs={12} md={6} key={img.id}>
-                  <ImageCard 
-                    image={img} 
-                    onImageClick={setLightboxImage} 
-                  />
+                  <ImageCard image={img} onImageClick={setLightboxImage} />
                 </Grid>
               ))}
             </Grid>
 
-            <div ref={observerTarget} style={{ height: '40px', margin: '40px 0', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-              {isFetchingNextPage && (
-                <CircularProgress size={30} />
-              )}
+            <div
+              ref={observerTarget}
+              style={{
+                height: "40px",
+                margin: "40px 0",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              {isFetchingNextPage && <CircularProgress size={30} />}
               {!hasNextPage && images.length > 0 && (
                 <Typography color="textSecondary" variant="body2">
                   Вы просмотрели все публикации!
@@ -141,9 +173,9 @@ export default function Feed() {
         )}
       </Box>
 
-      <LightboxDialog 
-        imageUrl={lightboxImage} 
-        onClose={() => setLightboxImage(null)} 
+      <LightboxDialog
+        imageUrl={lightboxImage}
+        onClose={() => setLightboxImage(null)}
       />
     </Box>
   );

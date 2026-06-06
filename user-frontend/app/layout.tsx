@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   title: "My Gallery",
   description: "User gallery application",
   icons: {
-    icon: '/favicon.svg',
+    icon: "/favicon.svg",
   },
 };
 
@@ -22,9 +22,7 @@ export default function RootLayout({
       <body>
         <QueryProvider>
           <ThemeRegistry>
-            <AuthProvider>
-              {children}
-            </AuthProvider>
+            <AuthProvider>{children}</AuthProvider>
           </ThemeRegistry>
         </QueryProvider>
       </body>

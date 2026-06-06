@@ -1,6 +1,6 @@
-import { useMutation } from '@tanstack/react-query';
-import { useAuth } from '../context/AuthContext';
-import { translateError } from '../utils/error-mapper';
+import { useMutation } from "@tanstack/react-query";
+import { useAuth } from "../context/AuthContext";
+import { translateError } from "../utils/error-mapper";
 
 // Мутация для логина
 export const useLogin = () => {
@@ -8,16 +8,17 @@ export const useLogin = () => {
 
   return useMutation({
     mutationFn: async (credentials: { login: string; password: string }) => {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(credentials),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        const errorKey = data.message?.message || data.message || 'Login failed';
+        const errorKey =
+          data.message?.message || data.message || "Login failed";
         throw new Error(translateError(errorKey));
       }
 
@@ -36,16 +37,17 @@ export const useRegister = () => {
 
   return useMutation({
     mutationFn: async (credentials: { login: string; password: string }) => {
-      const res = await fetch('/api/auth/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(credentials),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        const errorKey = data.message?.message || data.message || 'Registration failed';
+        const errorKey =
+          data.message?.message || data.message || "Registration failed";
         throw new Error(translateError(errorKey));
       }
 

@@ -1,0 +1,38 @@
+name: Admin Frontend CI
+
+on:
+  push:
+    paths:
+      - 'admin-frontend/**'
+      - '.github/workflows/admin-frontend.yml'
+  pull_request:
+    paths:
+      - 'admin-frontend/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: admin-frontend
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: admin-frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run lint
+        run: npm run lint
+
+      - name: Build project
+        run: npm run build

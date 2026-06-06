@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState } from "react";
 
 interface AuthContextType {
   token: string | null;
@@ -12,16 +12,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [token, setToken] = useState<string | null>(
-    localStorage.getItem('adminToken'),
+    localStorage.getItem("adminToken"),
   );
 
   const login = (newToken: string) => {
-    localStorage.setItem('adminToken', newToken);
+    localStorage.setItem("adminToken", newToken);
     setToken(newToken);
   };
 
   const logout = () => {
-    localStorage.removeItem('adminToken');
+    localStorage.removeItem("adminToken");
     setToken(null);
   };
 
@@ -34,6 +34,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) throw new Error('useAuth must be used within an AuthProvider');
+  if (!context) throw new Error("useAuth must be used within an AuthProvider");
   return context;
 };

@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import {
   Box,
   Typography,
@@ -11,13 +11,13 @@ import {
   Dialog,
   Button,
   Avatar,
-} from '@mui/material';
-import { useAuth } from '../context/AuthContext';
-import { AppButton } from '../components/ui/AppButton';
-import { AppLoader } from '../components/ui/AppLoader';
-import { AppTable, TableColumn } from '../components/ui/AppTable';
-import { translateError } from '../utils/error-mapper';
-import { formatBytes } from '../utils/formatters';
+} from "@mui/material";
+import { useAuth } from "../context/AuthContext";
+import { AppButton } from "../components/ui/AppButton";
+import { AppLoader } from "../components/ui/AppLoader";
+import { AppTable, TableColumn } from "../components/ui/AppTable";
+import { translateError } from "../utils/error-mapper";
+import { formatBytes } from "../utils/formatters";
 
 interface User {
   id: string | number;
@@ -26,7 +26,7 @@ interface User {
   lastName?: string;
   middleName?: string;
   gender?: string;
-  role: 'admin' | 'user';
+  role: "admin" | "user";
   isBlocked: boolean;
   avatarUrl?: string;
   originalAvatarUrl?: string;
@@ -50,7 +50,7 @@ interface Image {
 interface ToastState {
   open: boolean;
   message: string;
-  severity: 'success' | 'error';
+  severity: "success" | "error";
 }
 
 interface ApiResponse<T> {
@@ -68,14 +68,14 @@ export const ViewUser = () => {
   const [images, setImages] = useState<Image[]>([]);
   const [loading, setLoading] = useState(true);
   const [imagesLoading, setImagesLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const { token, logout } = useAuth();
   const navigate = useNavigate();
 
   const [toast, setToast] = useState<ToastState>({
     open: false,
-    message: '',
-    severity: 'success',
+    message: "",
+    severity: "success",
   });
 
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
@@ -125,15 +125,15 @@ export const ViewUser = () => {
             setToast({
               open: true,
               message: translateError(imagesData.message),
-              severity: 'error',
+              severity: "error",
             });
           }
         } else {
           const errorData = userData as UserApiResponse;
-          setError(translateError(errorData.message) || 'User not found');
+          setError(translateError(errorData.message) || "User not found");
         }
       } catch {
-        setError('Network error');
+        setError("Network error");
       } finally {
         setLoading(false);
         setImagesLoading(false);
@@ -145,8 +145,8 @@ export const ViewUser = () => {
 
   const imageColumns: TableColumn<Image>[] = [
     {
-      id: 'preview',
-      label: 'Preview',
+      id: "preview",
+      label: "Preview",
       render: (img: Image) => (
         <img
           src={img.thumbnailUrl || img.url}
@@ -154,17 +154,17 @@ export const ViewUser = () => {
           style={{
             width: 50,
             height: 50,
-            objectFit: 'cover',
+            objectFit: "cover",
             borderRadius: 4,
-            cursor: 'pointer',
+            cursor: "pointer",
           }}
           onClick={() => setLightboxImage(img.url)}
         />
       ),
     },
     {
-      id: 'id',
-      label: 'Image ID',
+      id: "id",
+      label: "Image ID",
       render: (img: Image) => (
         <Typography
           variant="body2"
@@ -176,34 +176,34 @@ export const ViewUser = () => {
       ),
     },
     {
-      id: 'title',
-      label: 'Title',
+      id: "title",
+      label: "Title",
       render: (img: Image) => (
-        <Typography fontWeight="bold">{img.title || '-'}</Typography>
+        <Typography fontWeight="bold">{img.title || "-"}</Typography>
       ),
     },
     {
-      id: 'author',
-      label: 'Author',
-      render: (img: Image) => <Typography>{img.author || '-'}</Typography>,
+      id: "author",
+      label: "Author",
+      render: (img: Image) => <Typography>{img.author || "-"}</Typography>,
     },
     {
-      id: 'format',
-      label: 'Format',
+      id: "format",
+      label: "Format",
       render: (img: Image) => (
         <Chip label={img.format} size="small" variant="outlined" />
       ),
     },
     {
-      id: 'size',
-      label: 'Size',
+      id: "size",
+      label: "Size",
       render: (img: Image) => (
         <Typography variant="body2">{formatBytes(img.size)}</Typography>
       ),
     },
     {
-      id: 'createdAt',
-      label: 'Created At',
+      id: "createdAt",
+      label: "Created At",
       render: (img: Image) => (
         <Typography variant="body2">
           {new Date(img.createdAt).toLocaleString()}
@@ -211,8 +211,8 @@ export const ViewUser = () => {
       ),
     },
     {
-      id: 'updatedAt',
-      label: 'Updated At',
+      id: "updatedAt",
+      label: "Updated At",
       render: (img: Image) => (
         <Typography variant="body2">
           {new Date(img.updatedAt).toLocaleString()}
@@ -220,11 +220,11 @@ export const ViewUser = () => {
       ),
     },
     {
-      id: 'publishedAt',
-      label: 'Published At',
+      id: "publishedAt",
+      label: "Published At",
       render: (img: Image) => (
         <Typography variant="body2">
-          {img.publishedAt ? new Date(img.publishedAt).toLocaleString() : '-'}
+          {img.publishedAt ? new Date(img.publishedAt).toLocaleString() : "-"}
         </Typography>
       ),
     },
@@ -245,7 +245,7 @@ export const ViewUser = () => {
   return (
     <Box>
       <Box display="flex" alignItems="center" gap={2} mb={3}>
-        <AppButton variant="outlined" onClick={() => navigate('/')}>
+        <AppButton variant="outlined" onClick={() => navigate("/")}>
           ← Back
         </AppButton>
         <Typography variant="h4" m={0}>
@@ -260,26 +260,26 @@ export const ViewUser = () => {
             sx={{
               width: 80,
               height: 80,
-              bgcolor: 'primary.main',
-              fontSize: '2rem',
-              cursor: user.originalAvatarUrl ? 'pointer' : 'default',
-              transition: 'opacity 0.2s',
-              '&:hover': { opacity: user.originalAvatarUrl ? 0.8 : 1 },
+              bgcolor: "primary.main",
+              fontSize: "2rem",
+              cursor: user.originalAvatarUrl ? "pointer" : "default",
+              transition: "opacity 0.2s",
+              "&:hover": { opacity: user.originalAvatarUrl ? 0.8 : 1 },
             }}
             onClick={() =>
               user.originalAvatarUrl && setLightboxImage(user.originalAvatarUrl)
             }
           >
-            {user.login[0]?.toUpperCase() || 'U'}
+            {user.login[0]?.toUpperCase() || "U"}
           </Avatar>
           <Box>
             <Typography variant="h5" fontWeight="bold">
               {user.firstName
-                ? `${user.firstName} ${user.lastName || ''}`
+                ? `${user.firstName} ${user.lastName || ""}`
                 : user.login}
             </Typography>
             <Typography color="textSecondary">
-              {user.role === 'admin' ? 'Administrator' : 'User'}
+              {user.role === "admin" ? "Administrator" : "User"}
             </Typography>
           </Box>
         </Box>
@@ -311,7 +311,7 @@ export const ViewUser = () => {
           <Grid item xs={12} sm={8}>
             <Chip
               label={user.role}
-              color={user.role === 'admin' ? 'warning' : 'default'}
+              color={user.role === "admin" ? "warning" : "default"}
               size="small"
             />
           </Grid>
@@ -323,8 +323,8 @@ export const ViewUser = () => {
           </Grid>
           <Grid item xs={12} sm={8}>
             <Chip
-              label={user.isBlocked ? 'Blocked' : 'Active'}
-              color={user.isBlocked ? 'error' : 'success'}
+              label={user.isBlocked ? "Blocked" : "Active"}
+              color={user.isBlocked ? "error" : "success"}
               size="small"
             />
           </Grid>
@@ -335,7 +335,7 @@ export const ViewUser = () => {
             </Typography>
           </Grid>
           <Grid item xs={12} sm={8}>
-            <Typography>{user.firstName || '-'}</Typography>
+            <Typography>{user.firstName || "-"}</Typography>
           </Grid>
 
           <Grid item xs={12} sm={4}>
@@ -344,7 +344,7 @@ export const ViewUser = () => {
             </Typography>
           </Grid>
           <Grid item xs={12} sm={8}>
-            <Typography>{user.middleName || '-'}</Typography>
+            <Typography>{user.middleName || "-"}</Typography>
           </Grid>
 
           <Grid item xs={12} sm={4}>
@@ -353,7 +353,7 @@ export const ViewUser = () => {
             </Typography>
           </Grid>
           <Grid item xs={12} sm={8}>
-            <Typography>{user.lastName || '-'}</Typography>
+            <Typography>{user.lastName || "-"}</Typography>
           </Grid>
 
           <Grid item xs={12} sm={4}>
@@ -362,7 +362,7 @@ export const ViewUser = () => {
             </Typography>
           </Grid>
           <Grid item xs={12} sm={8}>
-            <Typography>{user.gender || '-'}</Typography>
+            <Typography>{user.gender || "-"}</Typography>
           </Grid>
 
           <Grid item xs={12} sm={4}>
@@ -411,26 +411,26 @@ export const ViewUser = () => {
       >
         <Box
           sx={{
-            position: 'relative',
-            bgcolor: '#000',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            minHeight: '300px',
+            position: "relative",
+            bgcolor: "#000",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            minHeight: "300px",
           }}
         >
           <img
-            src={lightboxImage || ''}
+            src={lightboxImage || ""}
             alt="Full size"
             style={{
-              maxWidth: '100%',
-              maxHeight: '90vh',
-              objectFit: 'contain',
+              maxWidth: "100%",
+              maxHeight: "90vh",
+              objectFit: "contain",
             }}
           />
           <Button
             onClick={handleCloseLightbox}
-            sx={{ position: 'absolute', top: 8, right: 8 }}
+            sx={{ position: "absolute", top: 8, right: 8 }}
             variant="contained"
             color="error"
           >
@@ -443,12 +443,12 @@ export const ViewUser = () => {
         open={toast.open}
         autoHideDuration={4000}
         onClose={handleCloseToast}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
       >
         <Alert
           onClose={handleCloseToast}
           severity={toast.severity}
-          sx={{ width: '100%' }}
+          sx={{ width: "100%" }}
           variant="filled"
         >
           {toast.message}

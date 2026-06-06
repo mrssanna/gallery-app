@@ -4,8 +4,8 @@ import {
   DialogContent,
   DialogContentText,
   DialogActions,
-} from '@mui/material';
-import { AppButton } from './AppButton';
+} from "@mui/material";
+import { AppButton } from "./AppButton";
 
 interface AppConfirmDialogProps {
   open: boolean;
@@ -14,12 +14,12 @@ interface AppConfirmDialogProps {
   confirmText?: string;
   cancelText?: string;
   confirmColor?:
-    | 'primary'
-    | 'secondary'
-    | 'error'
-    | 'info'
-    | 'success'
-    | 'warning';
+    | "primary"
+    | "secondary"
+    | "error"
+    | "info"
+    | "success"
+    | "warning";
   onConfirm: () => void;
   onCancel: () => void;
 }
@@ -28,9 +28,9 @@ export const AppConfirmDialog = ({
   open,
   title,
   content,
-  confirmText = 'Confirm',
-  cancelText = 'Cancel',
-  confirmColor = 'primary',
+  confirmText = "Confirm",
+  cancelText = "Cancel",
+  confirmColor = "primary",
   onConfirm,
   onCancel,
 }: AppConfirmDialogProps) => {

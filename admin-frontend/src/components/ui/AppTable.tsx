@@ -6,7 +6,7 @@ import {
   TableHead,
   TableRow,
   Paper,
-} from '@mui/material';
+} from "@mui/material";
 
 export interface TableColumn<T> {
   id: string;
@@ -29,7 +29,7 @@ export const AppTable = <T extends Record<string, any>>({
   return (
     <TableContainer component={Paper} elevation={1}>
       <Table>
-        <TableHead sx={{ bgcolor: '#f8f9fa' }}>
+        <TableHead sx={{ bgcolor: "#f8f9fa" }}>
           <TableRow>
             {columns.map((col) => (
               <TableCell key={col.id}>

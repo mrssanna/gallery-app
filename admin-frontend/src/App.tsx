@@ -1,9 +1,9 @@
-import { Routes, Route } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
-import { Layout } from './components/Layout';
-import { Login } from './pages/Login';
-import { UsersList } from './pages/UsersList';
-import { ViewUser } from './pages/ViewUser';
+import { Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
+import { Layout } from "./components/Layout";
+import { Login } from "./pages/Login";
+import { UsersList } from "./pages/UsersList";
+import { ViewUser } from "./pages/ViewUser";
 
 function App() {
   return (

@@ -1,7 +1,7 @@
-import { Outlet, Navigate } from 'react-router-dom';
-import { AppBar, Toolbar, Typography, Container, Box } from '@mui/material';
-import { useAuth } from '../context/AuthContext';
-import { AppButton } from './ui/AppButton';
+import { Outlet, Navigate } from "react-router-dom";
+import { AppBar, Toolbar, Typography, Container, Box } from "@mui/material";
+import { useAuth } from "../context/AuthContext";
+import { AppButton } from "./ui/AppButton";
 
 export const Layout = () => {
   const { token, logout } = useAuth();
@@ -11,8 +11,8 @@ export const Layout = () => {
   }
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-      <AppBar position="static" sx={{ bgcolor: '#2c3e50' }}>
+    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+      <AppBar position="static" sx={{ bgcolor: "#2c3e50" }}>
         <Toolbar>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             🛡️ Admin Panel
@@ -23,7 +23,7 @@ export const Layout = () => {
         </Toolbar>
       </AppBar>
 
-      <Container component="main" sx={{ flex: 1, py: 4, maxWidth: '1200px' }}>
+      <Container component="main" sx={{ flex: 1, py: 4, maxWidth: "1200px" }}>
         <Outlet />
       </Container>
     </Box>

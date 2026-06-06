@@ -1,5 +1,5 @@
-import { useEffect, useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Box,
   Typography,
@@ -12,13 +12,13 @@ import {
   Alert,
   Avatar,
   SelectChangeEvent,
-} from '@mui/material';
-import { useAuth } from '../context/AuthContext';
-import { AppTable, TableColumn } from '../components/ui/AppTable';
-import { AppButton } from '../components/ui/AppButton';
-import { AppLoader } from '../components/ui/AppLoader';
-import { AppConfirmDialog } from '../components/ui/AppConfirmDialog';
-import { translateError } from '../utils/error-mapper';
+} from "@mui/material";
+import { useAuth } from "../context/AuthContext";
+import { AppTable, TableColumn } from "../components/ui/AppTable";
+import { AppButton } from "../components/ui/AppButton";
+import { AppLoader } from "../components/ui/AppLoader";
+import { AppConfirmDialog } from "../components/ui/AppConfirmDialog";
+import { translateError } from "../utils/error-mapper";
 
 interface User {
   id: string;
@@ -33,14 +33,14 @@ interface User {
 interface ToastState {
   open: boolean;
   message: string;
-  severity: 'success' | 'error';
+  severity: "success" | "error";
 }
 
 interface ConfirmDialogState {
   open: boolean;
   title: string;
   content: string;
-  confirmColor: 'error' | 'warning' | 'success';
+  confirmColor: "error" | "warning" | "success";
   action: () => Promise<void>;
 }
 
@@ -52,26 +52,26 @@ interface ApiResponse {
 export const UsersList = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
-  const [sortField, setSortField] = useState('createdAt');
-  const [sortOrder, setSortOrder] = useState('DESC');
+  const [sortField, setSortField] = useState("createdAt");
+  const [sortOrder, setSortOrder] = useState("DESC");
   const { token, logout } = useAuth();
   const navigate = useNavigate();
 
   const [toast, setToast] = useState<ToastState>({
     open: false,
-    message: '',
-    severity: 'success',
+    message: "",
+    severity: "success",
   });
 
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState>({
     open: false,
-    title: '',
-    content: '',
-    confirmColor: 'error',
+    title: "",
+    content: "",
+    confirmColor: "error",
     action: async () => {},
   });
 
-  const showToast = (message: string, severity: 'success' | 'error') => {
+  const showToast = (message: string, severity: "success" | "error") => {
     setToast({ open: true, message, severity });
   };
 
@@ -96,10 +96,10 @@ export const UsersList = () => {
       if (res.ok) {
         setUsers(data.node || []);
       } else {
-        showToast(translateError(data.message || 'Unknown error'), 'error');
+        showToast(translateError(data.message || "Unknown error"), "error");
       }
     } catch {
-      showToast('Network error', 'error');
+      showToast("Network error", "error");
     } finally {
       setLoading(false);
     }
@@ -111,19 +111,19 @@ export const UsersList = () => {
 
   const handleBlockToggle = useCallback(
     (login: string, isBlocked: boolean): void => {
-      const actionName = isBlocked ? 'unblock' : 'block';
+      const actionName = isBlocked ? "unblock" : "block";
 
       setConfirmDialog({
         open: true,
-        title: `${isBlocked ? 'Unblock' : 'Block'} User`,
+        title: `${isBlocked ? "Unblock" : "Block"} User`,
         content: `Are you sure you want to ${actionName} user ${login}?`,
-        confirmColor: isBlocked ? 'success' : 'warning',
+        confirmColor: isBlocked ? "success" : "warning",
         action: async () => {
           try {
-            const res = await fetch('/api/users/block', {
-              method: 'POST',
+            const res = await fetch("/api/users/block", {
+              method: "POST",
               headers: {
-                'Content-Type': 'application/json',
+                "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`,
               },
               body: JSON.stringify({ login }),
@@ -135,17 +135,17 @@ export const UsersList = () => {
             }
 
             if (res.ok) {
-              showToast(`User successfully ${actionName}ed`, 'success');
+              showToast(`User successfully ${actionName}ed`, "success");
               await fetchUsers();
             } else {
               const data = (await res.json()) as ApiResponse;
               showToast(
-                translateError(data.message || 'Unknown error'),
-                'error',
+                translateError(data.message || "Unknown error"),
+                "error",
               );
             }
           } catch {
-            showToast('Network error', 'error');
+            showToast("Network error", "error");
           } finally {
             setConfirmDialog((prev) => ({ ...prev, open: false }));
           }
@@ -159,13 +159,13 @@ export const UsersList = () => {
     (login: string): void => {
       setConfirmDialog({
         open: true,
-        title: 'Delete User',
+        title: "Delete User",
         content: `DANGER: Are you sure you want to permanently delete user ${login}? This action cannot be undone.`,
-        confirmColor: 'error',
+        confirmColor: "error",
         action: async () => {
           try {
             const res = await fetch(`/api/users/${login}`, {
-              method: 'DELETE',
+              method: "DELETE",
               headers: { Authorization: `Bearer ${token}` },
             });
 
@@ -175,17 +175,17 @@ export const UsersList = () => {
             }
 
             if (res.ok) {
-              showToast('User successfully deleted', 'success');
+              showToast("User successfully deleted", "success");
               await fetchUsers();
             } else {
               const data = (await res.json()) as ApiResponse;
               showToast(
-                translateError(data.message || 'Unknown error'),
-                'error',
+                translateError(data.message || "Unknown error"),
+                "error",
               );
             }
           } catch {
-            showToast('Network error', 'error');
+            showToast("Network error", "error");
           } finally {
             setConfirmDialog((prev) => ({ ...prev, open: false }));
           }
@@ -209,20 +209,20 @@ export const UsersList = () => {
 
   const columns: TableColumn<User>[] = [
     {
-      id: 'avatar',
-      label: 'Avatar',
+      id: "avatar",
+      label: "Avatar",
       render: (u) => (
         <Avatar
           src={u.avatarUrl}
-          sx={{ width: 32, height: 32, bgcolor: 'primary.main' }}
+          sx={{ width: 32, height: 32, bgcolor: "primary.main" }}
         >
-          {u.login[0]?.toUpperCase() || '?'}
+          {u.login[0]?.toUpperCase() || "?"}
         </Avatar>
       ),
     },
     {
-      id: 'id',
-      label: 'ID',
+      id: "id",
+      label: "ID",
       render: (u) => (
         <Typography
           variant="body2"
@@ -233,32 +233,32 @@ export const UsersList = () => {
         </Typography>
       ),
     },
-    { id: 'login', label: 'Email (Login)' },
+    { id: "login", label: "Email (Login)" },
     {
-      id: 'role',
-      label: 'Role',
+      id: "role",
+      label: "Role",
       render: (u) => (
         <Chip
           label={u.role}
-          color={u.role === 'admin' ? 'warning' : 'default'}
+          color={u.role === "admin" ? "warning" : "default"}
           size="small"
         />
       ),
     },
     {
-      id: 'status',
-      label: 'Status',
+      id: "status",
+      label: "Status",
       render: (u) => (
         <Chip
-          label={u.isBlocked ? 'Blocked' : 'Active'}
-          color={u.isBlocked ? 'error' : 'success'}
+          label={u.isBlocked ? "Blocked" : "Active"}
+          color={u.isBlocked ? "error" : "success"}
           size="small"
         />
       ),
     },
     {
-      id: 'createdAt',
-      label: 'Created At',
+      id: "createdAt",
+      label: "Created At",
       render: (u) => (
         <Typography variant="body2">
           {new Date(u.createdAt).toLocaleString()}
@@ -266,8 +266,8 @@ export const UsersList = () => {
       ),
     },
     {
-      id: 'updatedAt',
-      label: 'Last Updated',
+      id: "updatedAt",
+      label: "Last Updated",
       render: (u) => (
         <Typography variant="body2">
           {new Date(u.updatedAt).toLocaleString()}
@@ -275,10 +275,10 @@ export const UsersList = () => {
       ),
     },
     {
-      id: 'actions',
-      label: 'Actions',
+      id: "actions",
+      label: "Actions",
       render: (u) => (
-        <Box sx={{ display: 'flex', gap: 1 }}>
+        <Box sx={{ display: "flex", gap: 1 }}>
           <AppButton
             size="small"
             color="info"
@@ -288,18 +288,18 @@ export const UsersList = () => {
           </AppButton>
           <AppButton
             size="small"
-            color={u.isBlocked ? 'success' : 'warning'}
+            color={u.isBlocked ? "success" : "warning"}
             onClick={() => {
               handleBlockToggle(u.login, u.isBlocked);
             }}
-            disabled={u.role === 'admin'}
+            disabled={u.role === "admin"}
           >
-            {u.isBlocked ? 'Unblock' : 'Block'}
+            {u.isBlocked ? "Unblock" : "Block"}
           </AppButton>
           <AppButton
             size="small"
             color="error"
-            disabled={u.role === 'admin'}
+            disabled={u.role === "admin"}
             onClick={() => {
               handleDelete(u.login);
             }}
@@ -317,15 +317,15 @@ export const UsersList = () => {
     <Box>
       <Box
         sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
           mb: 3,
         }}
       >
         <Typography variant="h4">Users Management</Typography>
 
-        <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+        <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
           <FormControl size="small" sx={{ minWidth: 120 }}>
             <InputLabel>Sort By</InputLabel>
             <Select
@@ -379,12 +379,12 @@ export const UsersList = () => {
         open={toast.open}
         autoHideDuration={4000}
         onClose={() => setToast({ ...toast, open: false })}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
       >
         <Alert
           onClose={() => setToast({ ...toast, open: false })}
           severity={toast.severity}
-          sx={{ width: '100%' }}
+          sx={{ width: "100%" }}
           variant="filled"
         >
           {toast.message}

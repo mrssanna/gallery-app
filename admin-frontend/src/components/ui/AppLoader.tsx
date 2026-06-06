@@ -1,4 +1,4 @@
-import { CircularProgress, Box } from '@mui/material';
+import { CircularProgress, Box } from "@mui/material";
 
 // Универсальный лоадер по центру экрана/контейнера
 export const AppLoader = () => (

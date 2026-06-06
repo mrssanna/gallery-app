@@ -62,7 +62,7 @@ export const Login = () => {
       }
     } catch (err) {
       if (err instanceof z.ZodError) {
-        console.error("Validation error:", err.errors);
+        console.error("Validation error:", err.issues);
         setError("Invalid server response format");
       } else {
         setError("Network error. Is backend running?");

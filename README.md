@@ -3,6 +3,9 @@
 ![Backend CI](https://github.com/mrssanna/gallery-app/actions/workflows/backend.yml/badge.svg)
 ![Admin Frontend CI](https://github.com/mrssanna/gallery-app/actions/workflows/admin-frontend.yml/badge.svg)
 ![User Frontend CI](https://github.com/mrssanna/gallery-app/actions/workflows/user-frontend.yml/badge.svg)
+![Deploy User Frontend](https://github.com/mrssanna/gallery-app/actions/workflows/deploy-user-frontend.yml/badge.svg)
+
+**Live Demo (User Frontend):** [https://mrssanna.github.io/gallery-app/](https://mrssanna.github.io/gallery-app/)
 
 ## ⚠️ ВНИМАНИЕ: Работа с Git
 
@@ -21,13 +24,23 @@
   git push upstream main
   ```
 
-## GitHub Actions (CI)
+## GitHub Actions (CI/CD)
 
 Проверки линтера, тестов и сборки настроены для всех частей проекта. Статус проверок отображается бейджами выше.
 
 - **Backend CI**: запускается при изменениях в корневой папке (код сервера и тесты).
 - **Admin Frontend CI**: запускается при изменениях в папке `admin-frontend`.
 - **User Frontend CI**: запускается при изменениях в папке `user-frontend`.
+- **Deploy User Frontend**: Автоматический деплой пользовательского фронтенда на GitHub Pages.
+
+## Важное примечание по деплою
+
+Поскольку GitHub Pages поддерживает только статику, `user-frontend` настроен в режиме `output: 'export'`. 
+Запросы к `/api` не будут работать без задеплоенного бэкенда. 
+
+**Чтобы деплой заработал:**
+1. Перейдите в **Settings -> Pages** вашего репозитория.
+2. В разделе **Build and deployment > Source** выберите **GitHub Actions**.
 
 Каждый раз, когда вы делаете `push`, GitHub проверит:
 1. Устанавливаются ли зависимости (`npm ci`).

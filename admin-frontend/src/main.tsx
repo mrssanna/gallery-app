@@ -4,6 +4,11 @@ import { BrowserRouter } from "react-router-dom";
 import { ThemeProvider, createTheme, CssBaseline } from "@mui/material";
 import App from "./App.tsx";
 
+// Определяем базовый путь для роутинга
+// На GitHub Pages это /gallery-app/admin, локально — /
+const basename =
+  import.meta.env.VITE_IS_GITHUB_PAGES === "true" ? "/gallery-app/admin" : "/";
+
 // Создаем кастомную тему для админки
 const theme = createTheme({
   palette: {
@@ -20,7 +25,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <ThemeProvider theme={theme}>
       <CssBaseline /> {/* Сбрасывает дефолтные стили браузера */}
-      <BrowserRouter>
+      <BrowserRouter basename={basename}>
         <App />
       </BrowserRouter>
     </ThemeProvider>

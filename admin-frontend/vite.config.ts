@@ -1,11 +1,13 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
-const isGithubPages = process.env.IS_GITHUB_PAGES === 'true';
+// Проверяем обе переменные для надежности
+const isGithubPages = process.env.IS_GITHUB_PAGES === 'true' || process.env.VITE_IS_GITHUB_PAGES === 'true';
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
+  // base задает путь, по которому будут искаться .js и .css файлы
   base: isGithubPages ? '/gallery-app/admin/' : '/',
   server: {
     port: 3000,

@@ -7,6 +7,8 @@ import { AppTextField } from "../components/ui/AppTextField";
 import { translateError } from "../utils/error-mapper";
 import { z } from "zod";
 
+const IS_STATIC = import.meta.env.VITE_IS_STATIC === "true";
+
 const LoginResponseSchema = z.object({
   accessToken: z.string().optional(),
   message: z
@@ -35,6 +37,14 @@ export const Login = () => {
   const performLogin = async () => {
     setLoading(true);
     setError("");
+
+    if (IS_STATIC) {
+      await new Promise((resolve) => setTimeout(resolve, 800));
+      login("mock-admin-token");
+      navigate("/");
+      setLoading(false);
+      return;
+    }
 
     try {
       const res = await fetch("/api/auth/login", {

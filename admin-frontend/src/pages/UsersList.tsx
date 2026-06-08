@@ -19,6 +19,9 @@ import { AppButton } from "../components/ui/AppButton";
 import { AppLoader } from "../components/ui/AppLoader";
 import { AppConfirmDialog } from "../components/ui/AppConfirmDialog";
 import { translateError } from "../utils/error-mapper";
+import { MOCK_USERS } from "../utils/mock-data";
+
+const IS_STATIC = import.meta.env.VITE_IS_STATIC === "true";
 
 interface User {
   id: string;
@@ -79,6 +82,14 @@ export const UsersList = () => {
     if (!token) return;
 
     setLoading(true);
+
+    if (IS_STATIC) {
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      setUsers(MOCK_USERS);
+      setLoading(false);
+      return;
+    }
+
     try {
       const res = await fetch(
         `/api/users?pageNo=1&perPage=50&sortField=${sortField}&sortOrder=${sortOrder}`,
@@ -119,6 +130,16 @@ export const UsersList = () => {
         content: `Are you sure you want to ${actionName} user ${login}?`,
         confirmColor: isBlocked ? "success" : "warning",
         action: async () => {
+          if (IS_STATIC) {
+            setUsers((prev) =>
+              prev.map((u) =>
+                u.login === login ? { ...u, isBlocked: !isBlocked } : u,
+              ),
+            );
+            showToast(`User successfully ${actionName}ed (Mock)`, "success");
+            setConfirmDialog((prev) => ({ ...prev, open: false }));
+            return;
+          }
           try {
             const res = await fetch("/api/users/block", {
               method: "POST",
@@ -163,6 +184,12 @@ export const UsersList = () => {
         content: `DANGER: Are you sure you want to permanently delete user ${login}? This action cannot be undone.`,
         confirmColor: "error",
         action: async () => {
+          if (IS_STATIC) {
+            setUsers((prev) => prev.filter((u) => u.login !== login));
+            showToast("User successfully deleted (Mock)", "success");
+            setConfirmDialog((prev) => ({ ...prev, open: false }));
+            return;
+          }
           try {
             const res = await fetch(`/api/users/${login}`, {
               method: "DELETE",

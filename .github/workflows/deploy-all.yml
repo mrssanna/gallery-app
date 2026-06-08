@@ -1,0 +1,61 @@
+name: Deploy All Frontends to Pages
+
+on:
+  push:
+    branches: [ main ]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+      IS_GITHUB_PAGES: true
+      NEXT_PUBLIC_IS_STATIC: true
+      VITE_IS_STATIC: true
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      # 1. Собираем User Frontend (Next.js)
+      - name: Build User Frontend
+        run: |
+          cd user-frontend
+          npm ci
+          npm run build
+
+      # 2. Собираем Admin Frontend (Vite)
+      - name: Build Admin Frontend
+        run: |
+          cd admin-frontend
+          npm ci
+          npm run build
+
+      # 3. Объединяем сборки
+      - name: Merge builds
+        run: |
+          mkdir -p combined/admin
+          cp -r user-frontend/out/* combined/
+          cp -r admin-frontend/dist/* combined/admin/
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './combined'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

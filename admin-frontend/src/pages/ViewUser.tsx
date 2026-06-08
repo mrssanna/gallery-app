@@ -18,6 +18,9 @@ import { AppLoader } from "../components/ui/AppLoader";
 import { AppTable, TableColumn } from "../components/ui/AppTable";
 import { translateError } from "../utils/error-mapper";
 import { formatBytes } from "../utils/formatters";
+import { MOCK_USERS, MOCK_USER_IMAGES } from "../utils/mock-data";
+
+const IS_STATIC = import.meta.env.VITE_IS_STATIC === "true";
 
 interface User {
   id: string | number;
@@ -83,6 +86,21 @@ export const ViewUser = () => {
   useEffect(() => {
     const fetchUserAndImages = async () => {
       if (!token || !login) {
+        setLoading(false);
+        return;
+      }
+
+      setLoading(true);
+
+      if (IS_STATIC) {
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        const foundUser = MOCK_USERS.find((u) => u.login === login);
+        if (foundUser) {
+          setUser(foundUser as any);
+          setImages(MOCK_USER_IMAGES as any);
+        } else {
+          setError("User not found (Mock)");
+        }
         setLoading(false);
         return;
       }

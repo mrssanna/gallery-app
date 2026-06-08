@@ -6,6 +6,9 @@ import {
 } from "@tanstack/react-query";
 import { useAuth } from "../context/AuthContext";
 import { ImageItem } from "../components/ImageCard";
+import { MOCK_IMAGES } from "../utils/mock-data";
+
+const IS_STATIC = process.env.NEXT_PUBLIC_IS_STATIC === "true";
 
 interface GetImagesResponse {
   node: ImageItem[];
@@ -29,6 +32,8 @@ export const useUserImages = (
     // Кэшируем каждую страницу и каждый поисковый запрос отдельно
     queryKey: ["userImages", pageNo, perPage, search],
     queryFn: async () => {
+      if (IS_STATIC) return MOCK_IMAGES;
+
       const queryParams = new URLSearchParams({
         pageNo: pageNo.toString(),
         perPage: perPage.toString(),
@@ -51,6 +56,8 @@ export const useFeedImages = (perPage: number, search: string = "") => {
     // Кэшируем каждый поисковый запрос отдельно
     queryKey: ["feedImages", perPage, search],
     queryFn: async ({ pageParam = 1 }) => {
+      if (IS_STATIC) return MOCK_IMAGES;
+
       const queryParams = new URLSearchParams({
         pageNo: (pageParam as number).toString(),
         perPage: perPage.toString(),
@@ -78,6 +85,11 @@ export const useUploadImage = () => {
 
   return useMutation({
     mutationFn: async (formData: FormData) => {
+      if (IS_STATIC) {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        return { success: true };
+      }
+
       const res = await fetch("/api/store/upload", {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
@@ -104,6 +116,8 @@ export const useDeleteImage = () => {
 
   return useMutation({
     mutationFn: async (id: string) => {
+      if (IS_STATIC) return { success: true };
+
       const res = await fetch("/api/store/image", {
         method: "DELETE",
         headers: {
@@ -129,6 +143,8 @@ export const useUpdateImage = () => {
 
   return useMutation({
     mutationFn: async (data: { id: string; title: string; author: string }) => {
+      if (IS_STATIC) return { success: true };
+
       const res = await fetch("/api/store/update", {
         method: "PATCH",
         headers: {
@@ -159,6 +175,8 @@ export const usePublishImage = () => {
 
   return useMutation({
     mutationFn: async (id: string) => {
+      if (IS_STATIC) return { success: true };
+
       const res = await fetch("/api/store/publish", {
         method: "PATCH",
         headers: {

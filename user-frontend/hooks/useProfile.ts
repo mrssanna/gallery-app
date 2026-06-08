@@ -1,5 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth, UserProfile } from "../context/AuthContext";
+import { MOCK_USER } from "../utils/mock-data";
+
+const IS_STATIC = process.env.NEXT_PUBLIC_IS_STATIC === "true";
 
 // Хук для получения профиля (GET)
 export const useProfile = () => {
@@ -8,6 +11,8 @@ export const useProfile = () => {
   return useQuery<UserProfile, Error>({
     queryKey: ["profile"], // Уникальный ключ для кэширования
     queryFn: async () => {
+      if (IS_STATIC) return MOCK_USER;
+
       const res = await fetch("/api/users/profile", {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -45,6 +50,8 @@ export const useUpdateProfile = () => {
 
   return useMutation({
     mutationFn: async (updateData: Partial<UserProfile>) => {
+      if (IS_STATIC) return MOCK_USER;
+
       const res = await fetch("/api/users/profile", {
         method: "PATCH",
         headers: {
@@ -78,6 +85,8 @@ export const useUploadAvatar = () => {
 
   return useMutation({
     mutationFn: async (file: File) => {
+      if (IS_STATIC) return { success: true };
+
       const formData = new FormData();
       formData.append("file", file);
 

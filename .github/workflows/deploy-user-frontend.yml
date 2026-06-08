@@ -18,6 +18,7 @@ jobs:
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
       IS_GITHUB_PAGES: true # Сообщаем Next.js, что это сборка для Pages
+      NEXT_PUBLIC_IS_STATIC: true # Включаем режим моков для GitHub Pages
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

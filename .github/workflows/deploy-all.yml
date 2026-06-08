@@ -17,6 +17,7 @@ jobs:
       IS_GITHUB_PAGES: true
       NEXT_PUBLIC_IS_STATIC: true
       VITE_IS_STATIC: true
+      VITE_IS_GITHUB_PAGES: true
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -27,18 +28,21 @@ jobs:
           node-version: 20
           cache: 'npm'
 
+      # Используем npm install вместо npm ci, чтобы GitHub мог сам разрешить зависимости,
+      # так как package-lock.json сейчас не синхронизирован с новыми правками в package.json
+
       # 1. Собираем User Frontend (Next.js)
       - name: Build User Frontend
         run: |
           cd user-frontend
-          npm ci
+          npm install
           npm run build
 
       # 2. Собираем Admin Frontend (Vite)
       - name: Build Admin Frontend
         run: |
           cd admin-frontend
-          npm ci
+          npm install
           npm run build
 
       # 3. Объединяем сборки

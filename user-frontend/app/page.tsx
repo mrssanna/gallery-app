@@ -37,6 +37,7 @@ import { useQueryClient } from "@tanstack/react-query";
 
 const SOCKET_URL =
   process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:3001";
+const IS_STATIC = process.env.NEXT_PUBLIC_IS_STATIC === "true";
 
 export default function Home() {
   const { token, logout } = useAuth();
@@ -95,7 +96,8 @@ export default function Home() {
   const socketRef = useRef<Socket | null>(null);
 
   useEffect(() => {
-    if (!token) return;
+    // Если нет токена ИЛИ мы в режиме статики (демо), не подключаемся к сокетам
+    if (!token || IS_STATIC) return;
 
     const socket = io(SOCKET_URL, {
       auth: { token: token },

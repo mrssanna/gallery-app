@@ -346,7 +346,7 @@ export const UsersList = () => {
         sx={{
           display: "flex",
           justifyContent: "space-between",
-          alignItems: "center",
+          alignItems: { xs: "flex-start", md: "center" },
           mb: 3,
           flexDirection: { xs: "column", md: "row" },
           gap: 2,
@@ -358,7 +358,7 @@ export const UsersList = () => {
           sx={{
             display: "flex",
             gap: 2,
-            alignItems: "center",
+            alignItems: { xs: "flex-start", md: "center" },
             flexDirection: { xs: "column", md: "row" },
           }}
         >

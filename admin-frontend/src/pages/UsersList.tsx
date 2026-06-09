@@ -348,6 +348,8 @@ export const UsersList = () => {
           justifyContent: "space-between",
           alignItems: "center",
           mb: 3,
+          flexDirection: { xs: "column", md: "row" },
+          gap: 2,
         }}
       >
         <Typography variant="h4">Users Management</Typography>

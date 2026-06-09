@@ -354,7 +354,14 @@ export const UsersList = () => {
       >
         <Typography variant="h4">Users Management</Typography>
 
-        <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+        <Box
+          sx={{
+            display: "flex",
+            gap: 2,
+            alignItems: "center",
+            flexDirection: { xs: "column", md: "row" },
+          }}
+        >
           <FormControl size="small" sx={{ minWidth: 120 }}>
             <InputLabel>Sort By</InputLabel>
             <Select
